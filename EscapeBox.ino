@@ -176,11 +176,13 @@ void loop() {
   if (flag_playing_clue == true){
       play_clue(); 
   }
+
+  //lcd info
+  lcd_print(MSG_GAMESTEP[game_step][0],MSG_GAMESTEP[game_step][1],0);
   
   // GAME_STEP 0
   if (game_step == 0)
   {
-    lcd_print(MSG_GAMESTEP[game_step][0],MSG_GAMESTEP[game_step][1],0);
     if (digitalRead(GPIO_WIRE_INPUT) == HIGH){
       play_game_step_leds(game_step);
       game_step = 1;
@@ -192,7 +194,6 @@ void loop() {
   // GAME_STEP_1
   else if (game_step == 1)
   {
-    lcd_print(MSG_GAMESTEP[game_step][0],MSG_GAMESTEP[game_step][1],0);
     char customKey = customKeypad.getKey();
     if (isAlphaNumeric(customKey) or isDigit(customKey)
       or customKey == '*' or customKey == '#'){
@@ -202,6 +203,22 @@ void loop() {
         game_step = 2;
       }
     }
+  }
+  // GAME_STEP_2
+  else if (game_step == 2)
+  {
+
+  }
+  // GAME_STEP_3
+  else if (game_step == 3)
+  {
+
+
+  }
+  // GAME_STEP_4
+  else if (game_step == 4)
+  {
+
   }
   
 }
