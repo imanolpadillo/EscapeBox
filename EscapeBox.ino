@@ -24,16 +24,18 @@
 // ********************************************************************************************* //
 #include <LiquidCrystal_I2C.h>
 #include <Keypad.h>
+#include <SPI.h>
+#include <MFRC522.h>
 
 // ********************************************************************************************* //
 // GPIO
 // ********************************************************************************************* //
 // GAME_STEP_LEDS
-#define GPIO_LED_0                        49
-#define GPIO_LED_1                        50
-#define GPIO_LED_2                        51
-#define GPIO_LED_3                        52
-#define GPIO_LED_4                        53
+#define GPIO_LED_0                        45
+#define GPIO_LED_1                        46
+#define GPIO_LED_2                        47
+#define GPIO_LED_3                        48
+#define GPIO_LED_4                        49
 // CLUES
 #define GPIO_CLUE                         2
 #define GPIO_BUZZER                       35
@@ -53,6 +55,13 @@
 #define GPIO_KP_C2                        32
 #define GPIO_KP_C3                        33
 #define GPIO_KP_C4                        34
+// GAME STEP 2
+#define GPIO_RFID_RST                     8
+#define GPIO_RFID_SDA                     9
+//#define GPIO_RFID_SCL                     21
+//#define GPIO_RFID_MOSI                    11
+//#define GPIO_RFID_MISO                    12
+
 
 // ********************************************************************************************* //
 // CONSTANTS
@@ -73,6 +82,9 @@
 #define BUZZER_KEY                        0
 #define BUZZER_ERROR                      1
 #define BUZZER_SUCCESS                    2
+// rfid
+#define RFID_WHITE                        "3221477164"
+#define RFID_BLUE                         "575574115"
 // Messages                                1234567890123456789012345678901234567890
 #define MSG_INIT_1                        "   ESCAPE BOX   "
 #define MSG_INIT_2                        "  Mai y Mario   "
@@ -119,13 +131,15 @@ byte rowPins[4] = {GPIO_KP_R1, GPIO_KP_R2, GPIO_KP_R3, GPIO_KP_R4};
 byte colPins[4] = {GPIO_KP_C1, GPIO_KP_C2, GPIO_KP_C3, GPIO_KP_C4}; 
 Keypad customKeypad = Keypad(makeKeymap(hexaKeys), rowPins, colPins, 4, 4); 
 // general
-int game_step = 0;
+int game_step = 2;
 String last_clue;
 bool flag_playing_clue = false;
 //game_step 0
 bool flag_playing_leds = false;
 //game_step 1
 String password_val;
+//game_step 2
+MFRC522 mfrc522(GPIO_RFID_SDA, GPIO_RFID_RST); 
 
 // ********************************************************************************************* //
 // SETUP
@@ -159,6 +173,10 @@ void setup() {
   // Setup serial port
   Serial.begin(9600);  
 
+  // Setup SPI and rfid
+  SPI.begin();
+  mfrc522.PCD_Init();
+
   // Init lcd
   lcd.begin();                      
   lcd.backlight();
@@ -185,7 +203,7 @@ void loop() {
   {
     if (digitalRead(GPIO_WIRE_INPUT) == HIGH){
       play_game_step_leds(game_step);
-      game_step = 1;
+      game_step = game_step + 1;
     }
     else if (flag_playing_leds == true){
       play_leds(); 
@@ -200,14 +218,17 @@ void loop() {
       play_buzzer(BUZZER_KEY);
       if (check_password(customKey) == true){
         play_game_step_leds(game_step);
-        game_step = 2;
+        game_step = game_step + 1;
       }
     }
   }
   // GAME_STEP_2
   else if (game_step == 2)
   {
-
+    if (read_rfid() == true){
+        play_game_step_leds(game_step);
+        game_step = game_step + 1;
+    }
   }
   // GAME_STEP_3
   else if (game_step == 3)
@@ -437,4 +458,45 @@ bool check_password(char key)
     password_val = password_val + key;
   }
   return false;
+}
+
+// ********************************************************************************************* //
+// GAME STEP 2
+// ********************************************************************************************* //
+
+// Print array data
+String printArray(byte *buffer, byte bufferSize) {
+   String rfid_data;
+   for (byte i = 0; i < bufferSize; i++) {
+      //Serial.print(buffer[i] < 0x10 ? " 0" : " ");
+      //Serial.print(buffer[i], HEX);
+      rfid_data = rfid_data + buffer[i];
+   }
+   return rfid_data;
+}
+
+// Read rfid data
+bool read_rfid()
+{
+  String rfid_data;
+ if (mfrc522.PICC_IsNewCardPresent())
+   {
+      if (mfrc522.PICC_ReadCardSerial())
+      {
+         //Serial.print(F("Card UID:"));
+         rfid_data=printArray(mfrc522.uid.uidByte, mfrc522.uid.size);
+         //Serial.println();
+         Serial.println(rfid_data);
+ 
+         // Finalizar lectura actual
+         mfrc522.PICC_HaltA();
+      }
+   }
+   delay(250);
+   if (rfid_data == RFID_WHITE){
+    return true;
+   }
+   else{
+    return false;
+   }
 }
