@@ -26,6 +26,8 @@
 #include <Keypad.h>
 #include <SPI.h>
 #include <MFRC522.h>
+#include <Adafruit_GFX.h>
+#include <Max72xxPanel.h>
 
 // ********************************************************************************************* //
 // GPIO
@@ -58,10 +60,13 @@
 // GAME STEP 2
 #define GPIO_RFID_RST                     8
 #define GPIO_RFID_SDA                     9
-//#define GPIO_RFID_SCL                     21
-//#define GPIO_RFID_MOSI                    11
-//#define GPIO_RFID_MISO                    12
-
+//#define GPIO_RFID_SCK                   52  
+//#define GPIO_RFID_MOSI                  51 
+//#define GPIO_RFID_MISO                  50
+// GAME STEP 3
+#define GPIO_LMATRIX_CS                   53  // SS    
+//#define GPIO_LMATRIX_CLK                52  // SCK
+//#define GPIO_LMATRIX_DIN                51  // MOSI                
 
 // ********************************************************************************************* //
 // CONSTANTS
@@ -85,6 +90,13 @@
 // rfid
 #define RFID_WHITE                        "3221477164"
 #define RFID_BLUE                         "575574115"
+// led matrix
+#define LMATRIX_H_DISPLAYS                9
+#define LMATRIX_V_DISPLAYS                1
+#define LMATRIX_WAIT                      100
+#define LMATRIX_SPACER                    1
+#define LMATRIX_WIDTH                     6
+String LMATRIX_TAPE = "www.escapebox.com";
 // Messages                                1234567890123456789012345678901234567890
 #define MSG_INIT_1                        "   ESCAPE BOX   "
 #define MSG_INIT_2                        "  Mai y Mario   "
@@ -131,7 +143,7 @@ byte rowPins[4] = {GPIO_KP_R1, GPIO_KP_R2, GPIO_KP_R3, GPIO_KP_R4};
 byte colPins[4] = {GPIO_KP_C1, GPIO_KP_C2, GPIO_KP_C3, GPIO_KP_C4}; 
 Keypad customKeypad = Keypad(makeKeymap(hexaKeys), rowPins, colPins, 4, 4); 
 // general
-int game_step = 2;
+int game_step = 0;
 String last_clue;
 bool flag_playing_clue = false;
 //game_step 0
@@ -140,6 +152,9 @@ bool flag_playing_leds = false;
 String password_val;
 //game_step 2
 MFRC522 mfrc522(GPIO_RFID_SDA, GPIO_RFID_RST); 
+//game_step 3
+Max72xxPanel matrix = Max72xxPanel(GPIO_LMATRIX_CS, LMATRIX_H_DISPLAYS, LMATRIX_V_DISPLAYS);
+int lmatrix_index = 0;
 
 // ********************************************************************************************* //
 // SETUP
@@ -184,6 +199,30 @@ void setup() {
 
   // step leds
   play_game_step_leds(-1);
+
+  // setup led matrix
+  matrix.setIntensity(0); // Use a value between 0 and 15 for brightness
+  matrix.setPosition(0, 0, 0); // The first display is at <0, 0>
+  matrix.setPosition(1, 1, 0); // The second display is at <1, 0>
+  matrix.setPosition(2, 2, 0); // The third display is at <2, 0>
+  matrix.setPosition(3, 3, 0); // And the last display is at <3, 0>
+  matrix.setPosition(4, 4, 0); // And the last display is at <3, 0>
+  matrix.setPosition(5, 5, 0); // And the last display is at <3, 0>
+  matrix.setPosition(6, 6, 0); // And the last display is at <3, 0>
+  matrix.setPosition(7, 7, 0); // And the last display is at <3, 0>
+  matrix.setPosition(8, 8, 0); // And the last display is at <3, 0>
+  matrix.setPosition(9, 9, 0); // And the last display is at <3, 0>
+  matrix.setRotation(0, 1);    // Display is position upside down
+  matrix.setRotation(1, 1);    // Display is position upside down
+  matrix.setRotation(2, 1);    // Display is position upside down
+  matrix.setRotation(3, 1);    // Display is position upside down
+  matrix.setRotation(4, 1);    // Display is position upside down
+  matrix.setRotation(5, 1);    // Display is position upside down
+  matrix.setRotation(6, 1);    // Display is position upside down
+  matrix.setRotation(7, 1);    // Display is position upside down
+  matrix.setRotation(8, 1);    // Display is position upside down
+  matrix.setRotation(9, 1);    // Display is position upside down
+  matrix.write();
 }
 
 // ********************************************************************************************* //
@@ -233,8 +272,14 @@ void loop() {
   // GAME_STEP_3
   else if (game_step == 3)
   {
-
-
+    if (lmatrix_index < LMATRIX_WIDTH * LMATRIX_TAPE.length() + matrix.width() - 1 - LMATRIX_SPACER) {
+      lmatrix_write(lmatrix_index);
+      lmatrix_index++;
+    }
+    else{
+      //delay(LMATRIX_WAIT);
+      lmatrix_index = 0;
+    }
   }
   // GAME_STEP_4
   else if (game_step == 4)
@@ -483,20 +528,40 @@ bool read_rfid()
    {
       if (mfrc522.PICC_ReadCardSerial())
       {
-         //Serial.print(F("Card UID:"));
          rfid_data=printArray(mfrc522.uid.uidByte, mfrc522.uid.size);
-         //Serial.println();
          Serial.println(rfid_data);
- 
-         // Finalizar lectura actual
+         // Stop reading
          mfrc522.PICC_HaltA();
       }
    }
    delay(250);
-   if (rfid_data == RFID_WHITE){
+   if (rfid_data == RFID_WHITE or rfid_data == RFID_BLUE){
     return true;
    }
    else{
     return false;
    }
+}
+
+// ********************************************************************************************* //
+// GAME STEP 3
+// ********************************************************************************************* //
+
+// Print led matrix
+void lmatrix_write(int i)
+{
+  matrix.fillScreen(LOW);
+  int letter = i / LMATRIX_WIDTH;
+  int x = (matrix.width() - 1) - i % LMATRIX_WIDTH;
+  int y = (matrix.height() - 8) / 2; // center the text vertically
+
+  while (x + LMATRIX_WIDTH - LMATRIX_SPACER >= 0 && letter >= 0) {
+     if (letter < LMATRIX_TAPE.length()) {
+        matrix.drawChar(x, y, LMATRIX_TAPE[letter], HIGH, LOW, 1);
+     }
+
+     letter--;
+     x -= LMATRIX_WIDTH;
+  }
+  matrix.write(); // Send bitmap to display
 }
