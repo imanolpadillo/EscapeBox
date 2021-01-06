@@ -33,12 +33,6 @@
 // ********************************************************************************************* //
 // GPIO
 // ********************************************************************************************* //
-// GAME_STEP_LEDS
-#define GPIO_LED_0                        45
-#define GPIO_LED_1                        46
-#define GPIO_LED_2                        47
-#define GPIO_LED_3                        48
-#define GPIO_LED_4                        49
 // CLUES
 #define GPIO_CLUE                         2
 #define GPIO_BUZZER                       35
@@ -94,7 +88,7 @@
 #define RFID_WHITE                        "3221477164"
 #define RFID_BLUE                         "575574115"
 // led matrix
-#define LMATRIX_H_DISPLAYS                9
+#define LMATRIX_H_DISPLAYS                1
 #define LMATRIX_V_DISPLAYS                1
 #define LMATRIX_WAIT                      100
 #define LMATRIX_SPACER                    1
@@ -148,7 +142,7 @@ Keypad customKeypad = Keypad(makeKeymap(hexaKeys), rowPins, colPins, 4, 4);
 // general
 unsigned long loop_ms = millis();
 unsigned long total_ms;
-int game_step = 0;
+int game_step = 3;
 String last_clue;
 bool flag_playing_clue = false;
 //game_step 0
@@ -166,11 +160,6 @@ int lmatrix_index = 0;
 // ********************************************************************************************* //
 void setup() {
   // Setup digital pins
-  pinMode(GPIO_LED_0, OUTPUT); 
-  pinMode(GPIO_LED_1, OUTPUT); 
-  pinMode(GPIO_LED_2, OUTPUT); 
-  pinMode(GPIO_LED_3, OUTPUT); 
-  pinMode(GPIO_LED_4, OUTPUT); 
   pinMode(GPIO_CLUE, INPUT_PULLUP);  
   attachInterrupt(digitalPinToInterrupt(GPIO_CLUE), activate_flag_playing_clue, FALLING);
   pinMode(GPIO_BUZZER, OUTPUT); 
@@ -205,28 +194,7 @@ void setup() {
   // step leds
   play_game_step_leds(-1);
 
-  // setup led matrix
-  matrix.setIntensity(0); // Use a value between 0 and 15 for brightness
-  matrix.setPosition(0, 0, 0); // The first display is at <0, 0>
-  matrix.setPosition(1, 1, 0); // The second display is at <1, 0>
-  matrix.setPosition(2, 2, 0); // The third display is at <2, 0>
-  matrix.setPosition(3, 3, 0); // And the last display is at <3, 0>
-  matrix.setPosition(4, 4, 0); // And the last display is at <3, 0>
-  matrix.setPosition(5, 5, 0); // And the last display is at <3, 0>
-  matrix.setPosition(6, 6, 0); // And the last display is at <3, 0>
-  matrix.setPosition(7, 7, 0); // And the last display is at <3, 0>
-  matrix.setPosition(8, 8, 0); // And the last display is at <3, 0>
-  matrix.setPosition(9, 9, 0); // And the last display is at <3, 0>
-  matrix.setRotation(0, 1);    // Display is position upside down
-  matrix.setRotation(1, 1);    // Display is position upside down
-  matrix.setRotation(2, 1);    // Display is position upside down
-  matrix.setRotation(3, 1);    // Display is position upside down
-  matrix.setRotation(4, 1);    // Display is position upside down
-  matrix.setRotation(5, 1);    // Display is position upside down
-  matrix.setRotation(6, 1);    // Display is position upside down
-  matrix.setRotation(7, 1);    // Display is position upside down
-  matrix.setRotation(8, 1);    // Display is position upside down
-  matrix.setRotation(9, 1);    // Display is position upside down
+  // empty led matrix
   matrix.write();
   
 }
@@ -235,6 +203,10 @@ void setup() {
 // MAIN
 // ********************************************************************************************* //
 void loop() {
+  // waste
+  //char led[2]="5";
+  //Serial.write(led,1);
+  
   // Clue
   if (flag_playing_clue == true){
       play_clue(); 
@@ -331,11 +303,11 @@ void increment_recording_time()
       current_minutes /= 10;
     }
 
-    Serial.print("Recording time(m): ");
-    Serial.print(digits[3],DEC);
-    Serial.print(digits[2],DEC);
-    Serial.print(digits[1],DEC);
-    Serial.println(digits[0],DEC);
+    //Serial.print("Recording time(m): ");
+    //Serial.print(digits[3],DEC);
+    //Serial.print(digits[2],DEC);
+    //Serial.print(digits[1],DEC);
+    //Serial.println(digits[0],DEC);
 
     EEPROM.write(0,digits[3]);
     EEPROM.write(1,digits[2]);
@@ -347,16 +319,11 @@ void increment_recording_time()
 // A led will be played when a step is finished
 void play_game_step_leds (int level)
 {
-  if (level == -1){
-    for (int i=0;i<MAX_STEPS;i++){
-      digitalWrite(GPIO_LED_0 + i,LOW);
-    }
-  }else{
-    for (int i=0;i<=level;i++){
-      digitalWrite(GPIO_LED_0 + i,HIGH);
-    }
+  if (level != -1){
     play_buzzer(BUZZER_SUCCESS);
   }
+  Serial.print(level+1,DEC);
+  //Serial.print('A');
 }
 // Play buzzer tone
 void play_buzzer (int option)
@@ -584,7 +551,7 @@ bool read_rfid()
       if (mfrc522.PICC_ReadCardSerial())
       {
          rfid_data=printArray(mfrc522.uid.uidByte, mfrc522.uid.size);
-         Serial.println(rfid_data);
+         //Serial.println(rfid_data);
          // Stop reading
          mfrc522.PICC_HaltA();
       }
