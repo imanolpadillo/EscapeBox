@@ -22,6 +22,7 @@
 // ********************************************************************************************* //
 // INCLUDES 
 // ********************************************************************************************* //
+#include <EEPROM.h>
 #include <LiquidCrystal_I2C.h>
 #include <Keypad.h>
 #include <SPI.h>
@@ -73,8 +74,10 @@
 // ********************************************************************************************* //
 #define MAX_STEPS                         5
 #define MAX_CLUES                         3
+#define RECORDING_MS                      60000
 //game_step 1
 #define PASSWORD                          "1234"
+#define RESET_RECORDING_TIME              "311252"
 // lcd
 #define LCD_ADDRESS                       0x27
 #define LCD_SPEED                         300
@@ -143,6 +146,8 @@ byte rowPins[4] = {GPIO_KP_R1, GPIO_KP_R2, GPIO_KP_R3, GPIO_KP_R4};
 byte colPins[4] = {GPIO_KP_C1, GPIO_KP_C2, GPIO_KP_C3, GPIO_KP_C4}; 
 Keypad customKeypad = Keypad(makeKeymap(hexaKeys), rowPins, colPins, 4, 4); 
 // general
+unsigned long loop_ms = millis();
+unsigned long total_ms;
 int game_step = 0;
 String last_clue;
 bool flag_playing_clue = false;
@@ -223,6 +228,7 @@ void setup() {
   matrix.setRotation(8, 1);    // Display is position upside down
   matrix.setRotation(9, 1);    // Display is position upside down
   matrix.write();
+  
 }
 
 // ********************************************************************************************* //
@@ -286,7 +292,12 @@ void loop() {
   {
 
   }
+
+  // Increment recording time
+  increment_recording_time();
   
+
+
 }
 
 
@@ -299,6 +310,41 @@ void loop() {
 // ********************************************************************************************* //
 // GENERAL
 // ********************************************************************************************* //
+
+// Increment recording time
+void increment_recording_time()
+{
+  if(millis()-loop_ms>=RECORDING_MS){
+    loop_ms = millis();
+    
+    int current_minutes = EEPROM.read(0)*1000 + EEPROM.read(1)*100 + EEPROM.read(2)*10 + 
+      EEPROM.read(3) + 1;
+    
+    int i=0;
+    char digits[4];  
+    digits[3]=0;
+    digits[2]=0;
+    digits[1]=0;
+    digits[0]=0;
+    while(current_minutes>0 && i<4){
+      digits[i++] = current_minutes % 10; // you can change the 10 here and below to any number base
+      current_minutes /= 10;
+    }
+
+    Serial.print("Recording time(m): ");
+    Serial.print(digits[3],DEC);
+    Serial.print(digits[2],DEC);
+    Serial.print(digits[1],DEC);
+    Serial.println(digits[0],DEC);
+
+    EEPROM.write(0,digits[3]);
+    EEPROM.write(1,digits[2]);
+    EEPROM.write(2,digits[1]);
+    EEPROM.write(3,digits[0]);
+  }
+}
+
+// A led will be played when a step is finished
 void play_game_step_leds (int level)
 {
   if (level == -1){
@@ -493,6 +539,15 @@ bool check_password(char key)
   if (key=='#'){
     if (password_val == PASSWORD){
       return true;
+    }
+    else if (password_val == RESET_RECORDING_TIME){
+      //EEPROM reset recording time
+      EEPROM.write(0,0);
+      EEPROM.write(1,0);
+      EEPROM.write(2,0);
+      EEPROM.write(3,0);
+      play_buzzer(BUZZER_SUCCESS);
+      password_val = "";
     }
     else{
       play_buzzer(BUZZER_ERROR);
