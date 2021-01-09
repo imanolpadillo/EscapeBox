@@ -31,19 +31,31 @@
 #include <Max72xxPanel.h>
 
 // ********************************************************************************************* //
+// PASSWORDS
+// ********************************************************************************************* //
+// GAME STEP 1: keyboard
+#define GS1_PASSWORD                      "1234"
+#define RESET_RECORDING_TIME              "311252"
+// GAME STEP 2: rfid
+#define RFID_WHITE                        "3221477164"
+#define RFID_BLUE                         "575574115"
+// GAME STEP 4: joystick   
+const String GS4_PASSWORD  =              "LLRRUD";
+
+// ********************************************************************************************* //
 // GPIO
 // ********************************************************************************************* //
 // CLUES
 #define GPIO_CLUE                         2
 #define GPIO_BUZZER                       35
-// GAME STEP 0
+// GAME STEP 0: wires + leds
 #define GPIO_PULSE                        3
 #define GPIO_LED_R                        22
 #define GPIO_LED_G                        23
 #define GPIO_LED_B                        24
 #define GPIO_LED_W                        25
 #define GPIO_WIRE_INPUT                   26
-// GAME STEP 1
+// GAME STEP 1: keyboard
 #define GPIO_KP_R1                        27
 #define GPIO_KP_R2                        28
 #define GPIO_KP_R3                        29
@@ -52,26 +64,26 @@
 #define GPIO_KP_C2                        32
 #define GPIO_KP_C3                        33
 #define GPIO_KP_C4                        34
-// GAME STEP 2
+// GAME STEP 2: rfid
 #define GPIO_RFID_RST                     8
 #define GPIO_RFID_SDA                     9
 //#define GPIO_RFID_SCK                   52  
 //#define GPIO_RFID_MOSI                  51 
 //#define GPIO_RFID_MISO                  50
-// GAME STEP 3
+// GAME STEP 3: led matrix
 #define GPIO_LMATRIX_CS                   53  // SS    
 //#define GPIO_LMATRIX_CLK                52  // SCK
-//#define GPIO_LMATRIX_DIN                51  // MOSI                
+//#define GPIO_LMATRIX_DIN                51  // MOSI 
+// GAME STEP 4: joystick   
+#define GPIO_JOY_X                        A0
+#define GPIO_JOY_Y                        A1         
 
 // ********************************************************************************************* //
 // CONSTANTS
 // ********************************************************************************************* //
-#define MAX_STEPS                         5
+#define MAX_STEPS                         9
 #define MAX_CLUES                         3
 #define RECORDING_MS                      60000
-//game_step 1
-#define PASSWORD                          "1234"
-#define RESET_RECORDING_TIME              "311252"
 // lcd
 #define LCD_ADDRESS                       0x27
 #define LCD_SPEED                         300
@@ -84,43 +96,47 @@
 #define BUZZER_KEY                        0
 #define BUZZER_ERROR                      1
 #define BUZZER_SUCCESS                    2
-// rfid
-#define RFID_WHITE                        "3221477164"
-#define RFID_BLUE                         "575574115"
 // led matrix
 #define LMATRIX_H_DISPLAYS                1
 #define LMATRIX_V_DISPLAYS                1
-#define LMATRIX_WAIT                      100
 #define LMATRIX_SPACER                    1
 #define LMATRIX_WIDTH                     6
 String LMATRIX_TAPE = "www.escapebox.com";
 // Messages                                1234567890123456789012345678901234567890
 #define MSG_INIT_1                        "   ESCAPE BOX   "
 #define MSG_INIT_2                        "  Mai y Mario   "
-#define MSG_GAMESTEP0_1                   "PRUEBA 1        "
-#define MSG_GAMESTEP0_2                   "Conectad cables uuuuuu"
-#define MSG_GAMESTEP1_1                   "PRUEBA 2        "
-#define MSG_GAMESTEP1_2                   "Introduce 4 digitos + #"
 const String MSG_GAMESTEP[MAX_STEPS][LCD_ROWS] = {
-  {"Prueba 1", "Prueba1 - Descripcion"},
-  {"Prueba 2", "Prueba2 - Descripcion"},
-  {"Prueba 3", "Prueba3 - Descripcion"},
-  {"Prueba 4", "Prueba4 - Descripcion"},
-  {"Prueba 5", "Prueba5 - Descripcion"}
+  {"Prueba 1", "Cables y leds"},
+  {"Prueba 2", "keypad"},
+  {"Prueba 3", "rfid"},
+  {"Prueba 4", "led matrix"},
+  {"Prueba 5", "joystick"},
+  {"Prueba 6", "Prueba6 - Descripcion"},
+  {"Prueba 7", "Prueba7 - Descripcion"},
+  {"Prueba 8", "Prueba8 - Descripcion"},
+  {"Prueba 9", "Prueba9 - Descripcion"}
 };
 const String MSG_CLUE_1[MAX_STEPS][MAX_CLUES] = {
   {"Prueba1 - Pista1", "Prueba1 - Pista2", "Prueba1 - Pista3"},
   {"Prueba2 - Pista1", "Prueba2 - Pista2", "Prueba2 - Pista3"},
   {"Prueba3 - Pista1", "Prueba3 - Pista2", "Prueba3 - Pista3"},
   {"Prueba4 - Pista1", "Prueba4 - Pista2", "Prueba4 - Pista3"},
-  {"Prueba5 - Pista1", "Prueba5 - Pista2", "Prueba5 - Pista3"}
+  {"Prueba5 - Pista1", "Prueba5 - Pista2", "Prueba5 - Pista3"},
+  {"Prueba6 - Pista1", "Prueba6 - Pista2", "Prueba6 - Pista3"},
+  {"Prueba7 - Pista1", "Prueba7 - Pista2", "Prueba7 - Pista3"},
+  {"Prueba8 - Pista1", "Prueba8 - Pista2", "Prueba8 - Pista3"},
+  {"Prueba9 - Pista1", "Prueba9 - Pista2", "Prueba9 - Pista3"}
 };
 const String MSG_CLUE_2[MAX_STEPS][MAX_CLUES] = {
   {"Prueba1 - Pista1", "Prueba1 - Pista2", "Prueba1 - Pista3"},
   {"Prueba2 - Pista1", "Prueba2 - Pista2", "Prueba2 - Pista3"},
   {"Prueba3 - Pista1", "Prueba3 - Pista2", "Prueba3 - Pista3"},
   {"Prueba4 - Pista1", "Prueba4 - Pista2", "Prueba4 - Pista3"},
-  {"Prueba5 - Pista1", "Prueba5 - Pista2", "Prueba5 - Pista3"}
+  {"Prueba5 - Pista1", "Prueba5 - Pista2", "Prueba5 - Pista3"},
+  {"Prueba6 - Pista1", "Prueba6 - Pista2", "Prueba6 - Pista3"},
+  {"Prueba7 - Pista1", "Prueba7 - Pista2", "Prueba7 - Pista3"},
+  {"Prueba8 - Pista1", "Prueba8 - Pista2", "Prueba8 - Pista3"},
+  {"Prueba9 - Pista1", "Prueba9 - Pista2", "Prueba9 - Pista3"}
 };
 // ********************************************************************************************* //
 // VARIABLES
@@ -142,7 +158,7 @@ Keypad customKeypad = Keypad(makeKeymap(hexaKeys), rowPins, colPins, 4, 4);
 // general
 unsigned long loop_ms = millis();
 unsigned long total_ms;
-int game_step = 3;
+int game_step = 4;
 String last_clue;
 bool flag_playing_clue = false;
 //game_step 0
@@ -154,6 +170,8 @@ MFRC522 mfrc522(GPIO_RFID_SDA, GPIO_RFID_RST);
 //game_step 3
 Max72xxPanel matrix = Max72xxPanel(GPIO_LMATRIX_CS, LMATRIX_H_DISPLAYS, LMATRIX_V_DISPLAYS);
 int lmatrix_index = 0;
+//game_step 3
+char joy_last_state = ' ';
 
 // ********************************************************************************************* //
 // SETUP
@@ -163,6 +181,7 @@ void setup() {
   pinMode(GPIO_CLUE, INPUT_PULLUP);  
   attachInterrupt(digitalPinToInterrupt(GPIO_CLUE), activate_flag_playing_clue, FALLING);
   pinMode(GPIO_BUZZER, OUTPUT); 
+  // GAME STEP 0: wires + leds
   pinMode(GPIO_LED_R, OUTPUT);  
   pinMode(GPIO_LED_G, OUTPUT);  
   pinMode(GPIO_LED_B, OUTPUT);  
@@ -170,6 +189,7 @@ void setup() {
   pinMode(GPIO_PULSE, INPUT_PULLUP);  
   attachInterrupt(digitalPinToInterrupt(GPIO_PULSE), activate_flag_playing_leds, FALLING);
   pinMode(GPIO_WIRE_INPUT, INPUT);
+  // GAME STEP 1: keyboard
   pinMode(GPIO_KP_R1, INPUT);
   pinMode(GPIO_KP_R2, INPUT);
   pinMode(GPIO_KP_R3, INPUT);
@@ -178,6 +198,11 @@ void setup() {
   pinMode(GPIO_KP_C2, INPUT);
   pinMode(GPIO_KP_C3, INPUT);
   pinMode(GPIO_KP_C4, INPUT);
+  // GAME STEP 2: rfid
+  // GAME STEP 3: led matrix
+  // GAME STEP 4: joystick 
+  pinMode(GPIO_JOY_X, INPUT);
+  pinMode(GPIO_JOY_Y, INPUT);
 
   // Setup serial port
   Serial.begin(9600);  
@@ -255,14 +280,16 @@ void loop() {
       lmatrix_index++;
     }
     else{
-      //delay(LMATRIX_WAIT);
       lmatrix_index = 0;
     }
   }
   // GAME_STEP_4
   else if (game_step == 4)
   {
-
+    if (check_joystick() == true){
+        play_game_step_leds(game_step);
+        game_step = game_step + 1;
+    }
   }
 
   // Increment recording time
@@ -322,7 +349,7 @@ void play_game_step_leds (int level)
   if (level != -1){
     play_buzzer(BUZZER_SUCCESS);
   }
-  Serial.print(level+1,DEC);
+  //Serial.print(level+1,DEC);
   //Serial.print('A');
 }
 // Play buzzer tone
@@ -504,7 +531,8 @@ void play_leds ()
 bool check_password(char key)
 {
   if (key=='#'){
-    if (password_val == PASSWORD){
+    if (password_val == GS1_PASSWORD){
+      password_val = "";
       return true;
     }
     else if (password_val == RESET_RECORDING_TIME){
@@ -586,4 +614,56 @@ void lmatrix_write(int i)
      x -= LMATRIX_WIDTH;
   }
   matrix.write(); // Send bitmap to display
+}
+
+// ********************************************************************************************* //
+// GAME STEP 4
+// ********************************************************************************************* //
+
+// Read joystick data
+bool check_joystick()
+{
+  int Xval = 0;
+  int Yval = 0;
+  char joy_current_state;
+  Xval = analogRead(GPIO_JOY_X);
+  delay(100);                 //es necesaria una pequeña pausa entre lecturas analógicas
+  Yval = analogRead(GPIO_JOY_Y);
+  if (Xval>800 and Yval>200 and Yval<800){
+    joy_current_state = 'U';
+  }
+  else if (Xval<200 and Yval>200 and Yval<800){
+    joy_current_state = 'D';
+  }
+  else if (Yval>800 and Xval>200 and Xval<800){
+    joy_current_state = 'R';
+  }
+  else if (Yval<200 and Xval>200 and Xval<800){
+    joy_current_state = 'L';
+  }
+  else {
+    joy_current_state = ' ';
+    joy_last_state = ' ';
+  }
+
+  if (joy_last_state == ' ' and joy_current_state != ' '){
+    joy_last_state = joy_current_state;
+    password_val = password_val + joy_current_state;
+    play_buzzer(BUZZER_KEY);
+  }
+
+  //Serial.println ("joy_current_state: " + String(joy_current_state) + ", joy_last_state: " + String(joy_last_state) + ", password_val: " + password_val);
+
+  if (password_val.length() == GS4_PASSWORD.length()){
+    if (password_val != GS4_PASSWORD){
+      play_buzzer(BUZZER_ERROR);
+      password_val = "";
+    }
+    else{
+      password_val = "";
+      return true;
+    }
+  }
+
+  return false;
 }
