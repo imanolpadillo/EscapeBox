@@ -76,7 +76,10 @@ const String GS4_PASSWORD  =              "LLRRUD";
 //#define GPIO_LMATRIX_DIN                51  // MOSI 
 // GAME STEP 4: joystick   
 #define GPIO_JOY_X                        A0
-#define GPIO_JOY_Y                        A1         
+#define GPIO_JOY_Y                        A1       
+// GAME STEP 5: rotary encoder
+#define GPIO_ENC_CLK                      19
+#define GPIO_ENC_DT                       18   
 
 // ********************************************************************************************* //
 // CONSTANTS
@@ -101,6 +104,10 @@ const String GS4_PASSWORD  =              "LLRRUD";
 #define LMATRIX_V_DISPLAYS                1
 #define LMATRIX_SPACER                    1
 #define LMATRIX_WIDTH                     6
+// encoder
+const int ENCODER_MAX_VAL =               2200;
+const int ENCODER_MIN_VAL =               1500;
+
 String LMATRIX_TAPE = "www.escapebox.com";
 // Messages                                1234567890123456789012345678901234567890
 #define MSG_INIT_1                        "   ESCAPE BOX   "
@@ -158,7 +165,7 @@ Keypad customKeypad = Keypad(makeKeymap(hexaKeys), rowPins, colPins, 4, 4);
 // general
 unsigned long loop_ms = millis();
 unsigned long total_ms;
-int game_step = 4;
+int game_step = 5;
 String last_clue;
 bool flag_playing_clue = false;
 //game_step 0
@@ -172,6 +179,12 @@ Max72xxPanel matrix = Max72xxPanel(GPIO_LMATRIX_CS, LMATRIX_H_DISPLAYS, LMATRIX_
 int lmatrix_index = 0;
 //game_step 3
 char joy_last_state = ' ';
+//game_step 4
+const int timeThreshold = 5;
+long timeCounter = 0;
+int encoder_val = ENCODER_MIN_VAL;
+int step_minus = 0;
+int step_plus = 0;
 
 // ********************************************************************************************* //
 // SETUP
@@ -203,7 +216,11 @@ void setup() {
   // GAME STEP 4: joystick 
   pinMode(GPIO_JOY_X, INPUT);
   pinMode(GPIO_JOY_Y, INPUT);
-
+  // GAME STEP 5: rotary encoder
+  pinMode(GPIO_ENC_CLK, INPUT_PULLUP);
+  pinMode(GPIO_ENC_DT, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(GPIO_ENC_CLK), doEncodeCLK, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(GPIO_ENC_DT), doEncodeDT, CHANGE);
   // Setup serial port
   Serial.begin(9600);  
 
@@ -287,6 +304,14 @@ void loop() {
   else if (game_step == 4)
   {
     if (check_joystick() == true){
+        play_game_step_leds(game_step);
+        game_step = game_step + 1;
+    }
+  }
+  // GAME_STEP_5
+  else if (game_step == 5)
+  {
+    if (check_encoder() == true){
         play_game_step_leds(game_step);
         game_step = game_step + 1;
     }
@@ -620,7 +645,7 @@ void lmatrix_write(int i)
 // GAME STEP 4
 // ********************************************************************************************* //
 
-// Read joystick data
+// Check joystick data
 bool check_joystick()
 {
   int Xval = 0;
@@ -666,4 +691,50 @@ bool check_joystick()
   }
 
   return false;
+}
+
+// ********************************************************************************************* //
+// GAME STEP 5
+// ********************************************************************************************* //
+
+// Check encoder data
+bool check_encoder()
+{
+  Serial.println(encoder_val);
+}
+
+void doEncodeCLK()
+{
+  if (millis() > timeCounter + timeThreshold)
+  {
+    if (digitalRead(GPIO_ENC_CLK) != digitalRead(GPIO_ENC_DT))
+    {
+      step_minus = step_minus+1;
+      if (step_minus >= 2){
+        step_minus=0;
+        if(encoder_val>ENCODER_MIN_VAL){
+          encoder_val=encoder_val-1;
+        }
+      }
+    }
+    timeCounter = millis();
+  }
+}
+
+void doEncodeDT()
+{
+  if (millis() > timeCounter + timeThreshold)
+  {
+    if (digitalRead(GPIO_ENC_CLK) != digitalRead(GPIO_ENC_DT))
+    {
+      step_plus = step_plus+1;
+      if (step_plus >= 2){
+        step_plus=0;
+        if(encoder_val<ENCODER_MAX_VAL){
+          encoder_val=encoder_val+1;
+        }
+      }
+    }
+    timeCounter = millis();
+  }
 }
