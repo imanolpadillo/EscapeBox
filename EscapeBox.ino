@@ -29,6 +29,8 @@
 #include <MFRC522.h>
 #include <Adafruit_GFX.h>
 #include <Max72xxPanel.h>
+#include "Morse.h"
+#include "Melody.h"
 
 // ********************************************************************************************* //
 // PASSWORDS
@@ -41,6 +43,13 @@
 #define RFID_BLUE                         "575574115"
 // GAME STEP 4: joystick   
 const String GS4_PASSWORD  =              "LLRRUD";
+// GAME STEP 5: encoder
+#define YEAR_0                            1510
+#define YEAR_1                            1511
+#define YEAR_2                            1512
+#define YEAR_3                            1513
+
+   
 
 // ********************************************************************************************* //
 // GPIO
@@ -80,6 +89,8 @@ const String GS4_PASSWORD  =              "LLRRUD";
 // GAME STEP 5: rotary encoder
 #define GPIO_ENC_CLK                      19
 #define GPIO_ENC_DT                       18   
+#define GPIO_ENC_SW                       4  
+#define GPIO_PLAY_SONG                    5
 
 // ********************************************************************************************* //
 // CONSTANTS
@@ -185,6 +196,55 @@ long timeCounter = 0;
 int encoder_val = ENCODER_MIN_VAL;
 int step_minus = 0;
 int step_plus = 0;
+Morse morse(GPIO_BUZZER);
+Melody melody(GPIO_BUZZER);
+int song_index=0;
+
+int melody_0[] = {
+
+  //Based on the arrangement at https://www.flutetunes.com/tunes.php?id=192
+  
+  NOTE_E5, 4,  NOTE_B4,8,  NOTE_C5,8,  NOTE_D5,4,  NOTE_C5,8,  NOTE_B4,8,
+  NOTE_A4, 4,  NOTE_A4,8,  NOTE_C5,8,  NOTE_E5,4,  NOTE_D5,8,  NOTE_C5,8,
+  NOTE_B4, -4,  NOTE_C5,8,  NOTE_D5,4,  NOTE_E5,4,
+  NOTE_C5, 4,  NOTE_A4,4,  NOTE_A4,8,  NOTE_A4,4,  NOTE_B4,8,  NOTE_C5,8,
+
+  NOTE_D5, -4,  NOTE_F5,8,  NOTE_A5,4,  NOTE_G5,8,  NOTE_F5,8,
+  NOTE_E5, -4,  NOTE_C5,8,  NOTE_E5,4,  NOTE_D5,8,  NOTE_C5,8,
+  NOTE_B4, 4,  NOTE_B4,8,  NOTE_C5,8,  NOTE_D5,4,  NOTE_E5,4,
+  NOTE_C5, 4,  NOTE_A4,4,  NOTE_A4,4, REST, 4,
+};
+int melody_1[] = {
+
+  // Take on me, by A-ha
+  // Score available at https://musescore.com/user/27103612/scores/4834399
+  // Arranged by Edward Truong
+
+  NOTE_FS5,8, NOTE_FS5,8,NOTE_D5,8, NOTE_B4,8, REST,8, NOTE_B4,8, REST,8, NOTE_E5,8, 
+  REST,8, NOTE_E5,8, REST,8, NOTE_E5,8, NOTE_GS5,8, NOTE_GS5,8, NOTE_A5,8, NOTE_B5,8,
+  NOTE_A5,8, NOTE_A5,8, NOTE_A5,8, NOTE_E5,8, REST,8, NOTE_D5,8, REST,8, NOTE_FS5,8, 
+  REST,8, NOTE_FS5,8, REST,8, NOTE_FS5,8, NOTE_E5,8, NOTE_E5,8, NOTE_FS5,8, NOTE_E5,8,
+  NOTE_FS5,8, NOTE_FS5,8,NOTE_D5,8, NOTE_B4,8, REST,8, NOTE_B4,8, REST,8, NOTE_E5,8, 
+  
+  };
+
+  int melody_2[] = {
+
+  // Pink Panther theme
+  // Score available at https://musescore.com/benedictsong/the-pink-panther
+  // Theme by Masato Nakamura, arranged by Teddy Mason
+
+  REST,2, REST,4, REST,8, NOTE_DS4,8, 
+  NOTE_E4,-4, REST,8, NOTE_FS4,8, NOTE_G4,-4, REST,8, NOTE_DS4,8,
+  NOTE_E4,-8, NOTE_FS4,8,  NOTE_G4,-8, NOTE_C5,8, NOTE_B4,-8, NOTE_E4,8, NOTE_G4,-8, NOTE_B4,8,   
+  NOTE_AS4,2, NOTE_A4,-16, NOTE_G4,-16, NOTE_E4,-16, NOTE_D4,-16, 
+  NOTE_E4,2,
+ 
+  };
+
+  int morse_0 = ".-.. --- ... / .--. .. ... - --- .-.. . .-. --- ... / -.. . .-.. / . -.-. .-.. .. .--. ... .";
+
+
 
 // ********************************************************************************************* //
 // SETUP
@@ -221,6 +281,9 @@ void setup() {
   pinMode(GPIO_ENC_DT, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(GPIO_ENC_CLK), doEncodeCLK, CHANGE);
   attachInterrupt(digitalPinToInterrupt(GPIO_ENC_DT), doEncodeDT, CHANGE);
+  pinMode(GPIO_ENC_SW, INPUT);
+  digitalWrite(GPIO_ENC_SW, HIGH);
+  pinMode(GPIO_PLAY_SONG, INPUT);
   // Setup serial port
   Serial.begin(9600);  
 
@@ -701,6 +764,60 @@ bool check_joystick()
 bool check_encoder()
 {
   Serial.println(encoder_val);
+  if (!digitalRead(GPIO_ENC_SW)){
+    if (song_index == 0){
+      if (encoder_val == YEAR_0){
+        play_buzzer(BUZZER_SUCCESS);
+        song_index = song_index + 1;
+      }
+      else{
+        play_buzzer(BUZZER_ERROR);
+      }
+    }
+    else if (song_index == 1){
+      if (encoder_val == YEAR_1){
+        play_buzzer(BUZZER_SUCCESS);
+        song_index = song_index + 1;
+      }
+      else{
+        play_buzzer(BUZZER_ERROR);
+      }
+    }
+    else if (song_index == 2){
+      if (encoder_val == YEAR_2){
+        play_buzzer(BUZZER_SUCCESS);
+        song_index = song_index + 1;
+      }
+      else{
+        play_buzzer(BUZZER_ERROR);
+      }
+    }
+    else if (song_index == 3){
+      if (encoder_val == YEAR_3){
+        play_buzzer(BUZZER_SUCCESS);
+        song_index = 0;
+        return true;
+      }
+      else{
+        play_buzzer(BUZZER_ERROR);
+      }
+    }
+  }
+  if (digitalRead(GPIO_PLAY_SONG) == LOW){
+    if (song_index == 0){
+      melody.play_melody(melody_0, sizeof(melody_0));
+    }
+    else if (song_index == 1){
+      melody.play_melody(melody_1, sizeof(melody_1));
+    }
+    else if (song_index == 2){
+      melody.play_melody(melody_2, sizeof(melody_2));
+    }
+    else if (song_index == 3){
+      morse.dot(); morse.dot(); morse.dot();
+    }
+  }
+  return false;
 }
 
 void doEncodeCLK()
