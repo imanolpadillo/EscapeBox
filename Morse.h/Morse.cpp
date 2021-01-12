@@ -15,16 +15,24 @@ Morse::Morse(int pin)
 
 void Morse::dot()
 {
-  digitalWrite(_pin, HIGH);
+  //digitalWrite(_pin, HIGH);
+  //delay(250);
+  //digitalWrite(_pin, LOW);
+  //delay(250);  
+  tone(_pin, 300, 500);
   delay(250);
-  digitalWrite(_pin, LOW);
-  delay(250);  
+  noTone(_pin);
+  delay(250);
 }
 
 void Morse::dash()
 {
-  digitalWrite(_pin, HIGH);
-  delay(1000);
-  digitalWrite(_pin, LOW);
+  //digitalWrite(_pin, HIGH);
+  //delay(1000);
+  //digitalWrite(_pin, LOW);
+  //delay(250);
+  tone(_pin, 198, 1000);
+  delay(500);
+  noTone(_pin);
   delay(250);
 }

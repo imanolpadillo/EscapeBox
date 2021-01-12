@@ -242,7 +242,7 @@ int melody_1[] = {
  
   };
 
-  int morse_0 = ".-.. --- ... / .--. .. ... - --- .-.. . .-. --- ... / -.. . .-.. / . -.-. .-.. .. .--. ... .";
+  String morse_0 = ".-.. --- ... / .--. .. ... - --- .-.. . .-. --- ... / -.. . .-.. / . -.-. .-.. .. .--. ... .";
 
 
 
@@ -814,10 +814,29 @@ bool check_encoder()
       melody.play_melody(melody_2, sizeof(melody_2));
     }
     else if (song_index == 3){
-      morse.dot(); morse.dot(); morse.dot();
+      play_morse(morse_0);
     }
   }
   return false;
+}
+
+void play_morse(String data)
+{
+  for(int i=0; i<= data.length();i++){
+    //Serial.print(data[i]);
+    if (data[i]=='.'){
+      morse.dot();
+    }
+    else if (data[i]=='-'){
+      morse.dash();
+    }
+    else if (data[i]==' '){
+      delay(1000);
+    }
+    else if (data[i]=='/'){
+      delay(500);
+    }
+  }
 }
 
 void doEncodeCLK()
