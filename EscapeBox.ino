@@ -41,6 +41,8 @@
 // GAME STEP 2: rfid
 #define RFID_WHITE                        "3221477164"
 #define RFID_BLUE                         "575574115"
+// GAME STEP 3: ledmatrix
+#define GS3_PASSWORD                      "1234"
 // GAME STEP 4: joystick   
 const String GS4_PASSWORD  =              "LLRRUD";
 // GAME STEP 5: encoder
@@ -176,7 +178,7 @@ Keypad customKeypad = Keypad(makeKeymap(hexaKeys), rowPins, colPins, 4, 4);
 // general
 unsigned long loop_ms = millis();
 unsigned long total_ms;
-int game_step = 5;
+int game_step = 0;
 String last_clue;
 bool flag_playing_clue = false;
 //game_step 0
@@ -300,6 +302,7 @@ void setup() {
   play_game_step_leds(-1);
 
   // empty led matrix
+  matrix.fillScreen(0);
   matrix.write();
   
 }
@@ -338,7 +341,7 @@ void loop() {
     if (isAlphaNumeric(customKey) or isDigit(customKey)
       or customKey == '*' or customKey == '#'){
       play_buzzer(BUZZER_KEY);
-      if (check_password(customKey) == true){
+      if (check_password(customKey,GS1_PASSWORD) == true){
         play_game_step_leds(game_step);
         game_step = game_step + 1;
       }
@@ -356,11 +359,25 @@ void loop() {
   else if (game_step == 3)
   {
     if (lmatrix_index < LMATRIX_WIDTH * LMATRIX_TAPE.length() + matrix.width() - 1 - LMATRIX_SPACER) {
+      delay(100);
       lmatrix_write(lmatrix_index);
       lmatrix_index++;
     }
     else{
       lmatrix_index = 0;
+    }
+    // read keypad
+    char customKey = customKeypad.getKey();
+    if (isAlphaNumeric(customKey) or isDigit(customKey)
+      or customKey == '*' or customKey == '#'){
+      play_buzzer(BUZZER_KEY);
+      if (check_password(customKey,GS3_PASSWORD) == true){
+        play_game_step_leds(game_step);
+        game_step = game_step + 1;
+        // empty led matrix
+        matrix.fillScreen(0);
+        matrix.write();
+      }
     }
   }
   // GAME_STEP_4
@@ -437,7 +454,7 @@ void play_game_step_leds (int level)
   if (level != -1){
     play_buzzer(BUZZER_SUCCESS);
   }
-  //Serial.print(level+1,DEC);
+  Serial.print(level+1,DEC);
   //Serial.print('A');
 }
 // Play buzzer tone
@@ -616,10 +633,10 @@ void play_leds ()
 // ********************************************************************************************* //
 
 // Interrupt function when pressing pulse
-bool check_password(char key)
+bool check_password(char key, String password)
 {
   if (key=='#'){
-    if (password_val == GS1_PASSWORD){
+    if (password_val == password){
       password_val = "";
       return true;
     }
@@ -763,7 +780,7 @@ bool check_joystick()
 // Check encoder data
 bool check_encoder()
 {
-  Serial.println(encoder_val);
+  //Serial.println(encoder_val);
   if (!digitalRead(GPIO_ENC_SW)){
     if (song_index == 0){
       if (encoder_val == YEAR_0){
