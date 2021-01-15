@@ -178,7 +178,7 @@ Keypad customKeypad = Keypad(makeKeymap(hexaKeys), rowPins, colPins, 4, 4);
 // general
 unsigned long loop_ms = millis();
 unsigned long total_ms;
-int game_step = 0;
+int game_step;
 String last_clue;
 bool flag_playing_clue = false;
 //game_step 0
@@ -298,12 +298,13 @@ void setup() {
   lcd.backlight();
   lcd_print(MSG_INIT_1,MSG_INIT_2,TIMEOUT_LARGE);
 
-  // step leds
-  play_game_step_leds(-1);
-
   // empty led matrix
   matrix.fillScreen(0);
   matrix.write();
+
+  // set game_step
+  read_game_step();
+  game_step = 6;  //DELETE---------------------------------------------------------------------
   
 }
 
@@ -327,8 +328,7 @@ void loop() {
   if (game_step == 0)
   {
     if (digitalRead(GPIO_WIRE_INPUT) == HIGH){
-      play_game_step_leds(game_step);
-      game_step = game_step + 1;
+      increment_game_step();
     }
     else if (flag_playing_leds == true){
       play_leds(); 
@@ -342,8 +342,7 @@ void loop() {
       or customKey == '*' or customKey == '#'){
       play_buzzer(BUZZER_KEY);
       if (check_password(customKey,GS1_PASSWORD) == true){
-        play_game_step_leds(game_step);
-        game_step = game_step + 1;
+        increment_game_step();
       }
     }
   }
@@ -351,8 +350,7 @@ void loop() {
   else if (game_step == 2)
   {
     if (read_rfid() == true){
-        play_game_step_leds(game_step);
-        game_step = game_step + 1;
+        increment_game_step();
     }
   }
   // GAME_STEP_3
@@ -372,8 +370,7 @@ void loop() {
       or customKey == '*' or customKey == '#'){
       play_buzzer(BUZZER_KEY);
       if (check_password(customKey,GS3_PASSWORD) == true){
-        play_game_step_leds(game_step);
-        game_step = game_step + 1;
+        increment_game_step();
         // empty led matrix
         matrix.fillScreen(0);
         matrix.write();
@@ -384,17 +381,20 @@ void loop() {
   else if (game_step == 4)
   {
     if (check_joystick() == true){
-        play_game_step_leds(game_step);
-        game_step = game_step + 1;
+        increment_game_step();
     }
   }
   // GAME_STEP_5
   else if (game_step == 5)
   {
     if (check_encoder() == true){
-        play_game_step_leds(game_step);
-        game_step = game_step + 1;
+        increment_game_step();
     }
+  }
+  // GAME_STEP_6
+  else if (game_step == 6)
+  {
+
   }
 
   // Increment recording time
@@ -448,15 +448,36 @@ void increment_recording_time()
   }
 }
 
-// A led will be played when a step is finished
-void play_game_step_leds (int level)
+// Save game step
+void write_game_step()
 {
-  if (level != -1){
+    EEPROM.write(4,game_step);
+    //Serial.print("Game_stepW:");
+    //Serial.println(game_step,DEC);
+}
+
+// Read game step
+void read_game_step()
+{
+    game_step=EEPROM.read(4);
+    //Serial.print("Game_stepR:");
+    //Serial.println(game_step,DEC);
+}
+
+
+// increment game step
+void increment_game_step ()
+{
+  game_step = game_step + 1;
+  if (game_step > 0){
     play_buzzer(BUZZER_SUCCESS);
   }
-  Serial.print(level+1,DEC);
-  //Serial.print('A');
+  // A led will be played when a step is finished
+  Serial.print(game_step,DEC);
+  //Serial.print('A'); 
+  write_game_step();
 }
+
 // Play buzzer tone
 void play_buzzer (int option)
 {
@@ -780,7 +801,7 @@ bool check_joystick()
 // Check encoder data
 bool check_encoder()
 {
-  //Serial.println(encoder_val);
+  Serial.println(encoder_val);
   if (!digitalRead(GPIO_ENC_SW)){
     if (song_index == 0){
       if (encoder_val == YEAR_0){
