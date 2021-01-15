@@ -118,8 +118,10 @@ const String GS4_PASSWORD  =              "LLRRUD";
 #define LMATRIX_SPACER                    1
 #define LMATRIX_WIDTH                     6
 // encoder
-const int ENCODER_MAX_VAL =               2200;
-const int ENCODER_MIN_VAL =               1500;
+#define ENCODER_MAX_VAL_GS5               2200
+#define ENCODER_MIN_VAL_GS5               1500
+#define ENCODER_MAX_VAL_GS6               25
+#define ENCODER_MIN_VAL_GS6               0
 
 String LMATRIX_TAPE = "www.escapebox.com";
 // Messages                                1234567890123456789012345678901234567890
@@ -175,6 +177,9 @@ const char hexaKeys[4][4] = {
 byte rowPins[4] = {GPIO_KP_R1, GPIO_KP_R2, GPIO_KP_R3, GPIO_KP_R4}; 
 byte colPins[4] = {GPIO_KP_C1, GPIO_KP_C2, GPIO_KP_C3, GPIO_KP_C4}; 
 Keypad customKeypad = Keypad(makeKeymap(hexaKeys), rowPins, colPins, 4, 4); 
+// encoder
+int encoder_max_val;
+int encoder_min_val;
 // general
 unsigned long loop_ms = millis();
 unsigned long total_ms;
@@ -195,7 +200,7 @@ char joy_last_state = ' ';
 //game_step 4
 const int timeThreshold = 5;
 long timeCounter = 0;
-int encoder_val = ENCODER_MIN_VAL;
+int encoder_val = ENCODER_MIN_VAL_GS5;
 int step_minus = 0;
 int step_plus = 0;
 Morse morse(GPIO_BUZZER);
@@ -387,14 +392,25 @@ void loop() {
   // GAME_STEP_5
   else if (game_step == 5)
   {
-    if (check_encoder() == true){
+    encoder_max_val = ENCODER_MAX_VAL_GS5;
+    encoder_min_val = ENCODER_MIN_VAL_GS5;
+    if (check_date() == true){
+        encoder_val=0;
         increment_game_step();
     }
   }
   // GAME_STEP_6
   else if (game_step == 6)
   {
-
+    encoder_max_val = ENCODER_MAX_VAL_GS6;
+    encoder_min_val = ENCODER_MIN_VAL_GS6;
+    if (encoder_val>encoder_max_val){
+      encoder_val = encoder_min_val;
+    }
+    if (check_word() == true){
+        encoder_val=0;
+        increment_game_step();
+    }
   }
 
   // Increment recording time
@@ -799,7 +815,7 @@ bool check_joystick()
 // ********************************************************************************************* //
 
 // Check encoder data
-bool check_encoder()
+bool check_date()
 {
   Serial.println(encoder_val);
   if (!digitalRead(GPIO_ENC_SW)){
@@ -886,8 +902,11 @@ void doEncodeCLK()
       step_minus = step_minus+1;
       if (step_minus >= 2){
         step_minus=0;
-        if(encoder_val>ENCODER_MIN_VAL){
+        if(encoder_val>encoder_min_val){
           encoder_val=encoder_val-1;
+        }
+        else if(encoder_val<=encoder_min_val){
+          encoder_val=encoder_max_val;
         }
       }
     }
@@ -904,11 +923,114 @@ void doEncodeDT()
       step_plus = step_plus+1;
       if (step_plus >= 2){
         step_plus=0;
-        if(encoder_val<ENCODER_MAX_VAL){
+        if(encoder_val<encoder_max_val){
           encoder_val=encoder_val+1;
+        }
+        else if(encoder_val>=encoder_max_val){
+          encoder_val=encoder_min_val;
         }
       }
     }
     timeCounter = millis();
   }
+}
+
+
+// ********************************************************************************************* //
+// GAME STEP 6
+// ********************************************************************************************* //
+
+// Check encoder data
+bool check_word()
+{
+  write_letter(encoder_val);
+  Serial.println(encoder_val);
+
+}
+
+void write_letter(int option)
+{
+  char letter;
+  
+  if (option == 0){
+    letter = 'A';
+  }
+  else if (option == 1){
+    letter = 'B';
+  }
+  else if (option == 2){
+    letter = 'C';
+  }
+  else if (option == 3){
+    letter = 'D';
+  }
+  else if (option == 4){
+    letter = 'E';
+  }
+  else if (option == 5){
+    letter = 'F';
+  }
+  else if (option == 6){
+    letter = 'G';
+  }
+  else if (option == 7){
+    letter = 'H';
+  }
+  else if (option == 8){
+    letter = 'I';
+  }
+  else if (option == 9){
+    letter = 'J';
+  }
+  else if (option == 10){
+    letter = 'K';
+  }
+  else if (option == 11){
+    letter = 'L';
+  }
+  else if (option == 12){
+    letter = 'M';
+  }
+  else if (option == 13){
+    letter = 'N';
+  }
+  else if (option == 14){
+    letter = 'O';
+  }
+  else if (option == 15){
+    letter = 'P';
+  }
+  else if (option == 16){
+    letter = 'Q';
+  }
+  else if (option == 17){
+    letter = 'R';
+  }
+  else if (option == 18){
+    letter = 'S';
+  }
+  else if (option == 19){
+    letter = 'T';
+  }
+  else if (option == 20){
+    letter = 'U';
+  }
+  else if (option == 21){
+    letter = 'V';
+  }
+  else if (option == 22){
+    letter = 'W';
+  }
+  else if (option == 23){
+    letter = 'X';
+  }
+  else if (option == 24){
+    letter = 'Y';
+  }
+  else if (option == 25){
+    letter = 'Z';
+  }
+  matrix.fillScreen(LOW);
+  matrix.drawChar(1, 0, letter, HIGH, LOW, 1);
+  matrix.write();
 }
