@@ -428,11 +428,11 @@ void loop() {
       delay(250);
       lc.setDigit(0,3,(byte)9,false);  //I
       delay(250);
-      lc.setDigit(0,2,(byte)3,false);  //D
+      lc.setDigit(0,2,(byte)4,false);  //D
       delay(250);
       lc.setDigit(0,1,(byte)1,false);  //A
       delay(250);
-      lc.setDigit(0,0,(byte)3,false);  //D
+      lc.setDigit(0,0,(byte)4,false);  //D
       delay(250);
       lc.setDigit(0,7,(byte)4,false);  //D
       delay(250);
