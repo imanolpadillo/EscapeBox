@@ -31,6 +31,7 @@
 #include <Max72xxPanel.h>
 #include "Morse.h"
 #include "Melody.h"
+#include "LedControl.h"
 
 // ********************************************************************************************* //
 // PASSWORDS
@@ -50,6 +51,8 @@ const String GS4_PASSWORD  =              "LLRRUD";
 #define YEAR_1                            1511
 #define YEAR_2                            1512
 #define YEAR_3                            1513
+// GAME STEP 6: display
+#define GS7_PASSWORD                      "DIGNIDAD"
 
    
 
@@ -93,6 +96,10 @@ const String GS4_PASSWORD  =              "LLRRUD";
 #define GPIO_ENC_DT                       18   
 #define GPIO_ENC_SW                       4  
 #define GPIO_PLAY_SONG                    5
+// GAME STEP 6: display
+#define GPIO_DISPLAY_DIN                  12
+#define GPIO_DISPLAY_CS                   11
+#define GPIO_DISPLAY_CLK                  10
 
 // ********************************************************************************************* //
 // CONSTANTS
@@ -180,6 +187,8 @@ Keypad customKeypad = Keypad(makeKeymap(hexaKeys), rowPins, colPins, 4, 4);
 // encoder
 int encoder_max_val;
 int encoder_min_val;
+// display
+LedControl lc=LedControl(GPIO_DISPLAY_DIN,GPIO_DISPLAY_CLK,GPIO_DISPLAY_CS,1);
 // general
 unsigned long loop_ms = millis();
 unsigned long total_ms;
@@ -235,7 +244,7 @@ int melody_1[] = {
   
   };
 
-  int melody_2[] = {
+int melody_2[] = {
 
   // Pink Panther theme
   // Score available at https://musescore.com/benedictsong/the-pink-panther
@@ -249,9 +258,11 @@ int melody_1[] = {
  
   };
 
-  String morse_0 = ".-.. --- ... / .--. .. ... - --- .-.. . .-. --- ... / -.. . .-.. / . -.-. .-.. .. .--. ... .";
+String morse_0 = ".-.. --- ... / .--. .. ... - --- .-.. . .-. --- ... / -.. . .-.. / . -.-. .-.. .. .--. ... .";
 
-
+//game_step 6: display
+String display_val="";
+char letter;
 
 // ********************************************************************************************* //
 // SETUP
@@ -303,14 +314,20 @@ void setup() {
   lcd.backlight();
   lcd_print(MSG_INIT_1,MSG_INIT_2,TIMEOUT_LARGE);
 
-  // empty led matrix
+  // Init led matrix
   matrix.fillScreen(0);
   matrix.write();
+
+  // Init display
+  //lc.shutdown(0,false);      // switch off energy saver
+  lc.setIntensity(0,2);      // set brightness
+  lc.clearDisplay(0);        // clear screen
 
   // set game_step
   read_game_step();
   game_step = 6;  //DELETE---------------------------------------------------------------------
-  
+ 
+
 }
 
 // ********************************************************************************************* //
@@ -402,8 +419,30 @@ void loop() {
   // GAME_STEP_6
   else if (game_step == 6)
   {
-    encoder_max_val = ENCODER_MAX_VAL_GS6;
-    encoder_min_val = ENCODER_MIN_VAL_GS6;
+    if (encoder_max_val != ENCODER_MAX_VAL_GS6){
+      encoder_max_val = ENCODER_MAX_VAL_GS6;
+      encoder_min_val = ENCODER_MIN_VAL_GS6;  
+      lc.shutdown(0,false);
+      lc.clearDisplay(0);
+      
+      delay(250);
+      lc.setDigit(0,3,(byte)9,false);  //I
+      delay(250);
+      lc.setDigit(0,2,(byte)3,false);  //D
+      delay(250);
+      lc.setDigit(0,1,(byte)1,false);  //A
+      delay(250);
+      lc.setDigit(0,0,(byte)3,false);  //D
+      delay(250);
+      lc.setDigit(0,7,(byte)4,false);  //D
+      delay(250);
+      lc.setDigit(0,6,(byte)9,false);  //I
+      delay(250);
+      lc.setDigit(0,5,(byte)7,false);  //G
+      delay(250);
+      lc.setChar(0,4,'E',false);       //N
+    }
+    
     if (encoder_val>encoder_max_val){
       encoder_val = encoder_min_val;
     }
@@ -817,7 +856,7 @@ bool check_joystick()
 // Check encoder data
 bool check_date()
 {
-  Serial.println(encoder_val);
+  //Serial.println(encoder_val);
   if (!digitalRead(GPIO_ENC_SW)){
     if (song_index == 0){
       if (encoder_val == YEAR_0){
@@ -943,14 +982,29 @@ void doEncodeDT()
 // Check encoder data
 bool check_word()
 {
+  if (!digitalRead(GPIO_ENC_SW)){
+    display_val = display_val + letter;
+    Serial.println(display_val);
+    if (display_val.length()==8){
+      if(display_val==GS7_PASSWORD){
+        display_val="";
+        return true;
+      }
+      else{
+        play_buzzer(BUZZER_ERROR);
+        display_val="";
+      }
+    }
+    else{
+      play_buzzer(BUZZER_KEY);
+    }
+  }
   write_letter(encoder_val);
-  Serial.println(encoder_val);
-
+  return false;
 }
 
 void write_letter(int option)
 {
-  char letter;
   
   if (option == 0){
     letter = 'A';
