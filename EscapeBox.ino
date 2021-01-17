@@ -61,26 +61,26 @@ const String GS4_PASSWORD  =              "LLRRUD";
 // ********************************************************************************************* //
 // CLUES
 #define GPIO_CLUE                         2
-#define GPIO_BUZZER                       35
+#define GPIO_BUZZER                       38
 // GAME STEP 0: wires + leds
 #define GPIO_PULSE                        3
 #define GPIO_LED_R                        22
-#define GPIO_LED_G                        23
-#define GPIO_LED_B                        24
-#define GPIO_LED_W                        25
-#define GPIO_WIRE_INPUT                   26
+#define GPIO_LED_G                        24
+#define GPIO_LED_B                        26
+#define GPIO_LED_W                        28
+#define GPIO_WIRE_INPUT                   30
 // GAME STEP 1: keyboard
-#define GPIO_KP_R1                        27
-#define GPIO_KP_R2                        28
-#define GPIO_KP_R3                        29
-#define GPIO_KP_R4                        30
-#define GPIO_KP_C1                        31
-#define GPIO_KP_C2                        32
-#define GPIO_KP_C3                        33
-#define GPIO_KP_C4                        34
+#define GPIO_KP_C1                        23
+#define GPIO_KP_C2                        25
+#define GPIO_KP_C3                        27
+#define GPIO_KP_C4                        29
+#define GPIO_KP_R1                        31
+#define GPIO_KP_R2                        33
+#define GPIO_KP_R3                        35
+#define GPIO_KP_R4                        37
 // GAME STEP 2: rfid
-#define GPIO_RFID_RST                     8
-#define GPIO_RFID_SDA                     9
+#define GPIO_RFID_RST                     34
+#define GPIO_RFID_SDA                     36
 //#define GPIO_RFID_SCK                   52  
 //#define GPIO_RFID_MOSI                  51 
 //#define GPIO_RFID_MISO                  50
@@ -94,12 +94,12 @@ const String GS4_PASSWORD  =              "LLRRUD";
 // GAME STEP 5: rotary encoder
 #define GPIO_ENC_CLK                      19
 #define GPIO_ENC_DT                       18   
-#define GPIO_ENC_SW                       4  
-#define GPIO_PLAY_SONG                    5
+#define GPIO_ENC_SW                       40  
+#define GPIO_PLAY_SONG                    32
 // GAME STEP 6: display
-#define GPIO_DISPLAY_DIN                  12
-#define GPIO_DISPLAY_CS                   11
-#define GPIO_DISPLAY_CLK                  10
+#define GPIO_DISPLAY_DIN                  42
+#define GPIO_DISPLAY_CS                   44
+#define GPIO_DISPLAY_CLK                  46
 
 // ********************************************************************************************* //
 // CONSTANTS
@@ -135,13 +135,13 @@ String LMATRIX_TAPE = "www.escapebox.com";
 #define MSG_INIT_1                        "   ESCAPE BOX   "
 #define MSG_INIT_2                        "  Mai y Mario   "
 const String MSG_GAMESTEP[MAX_STEPS][LCD_ROWS] = {
-  {"Prueba 1", "Cables y leds"},
-  {"Prueba 2", "keypad"},
-  {"Prueba 3", "rfid"},
-  {"Prueba 4", "led matrix"},
-  {"Prueba 5", "joystick"},
-  {"Prueba 6", "Prueba6 - Descripcion"},
-  {"Prueba 7", "Prueba7 - Descripcion"},
+  {"Prueba 1", "Cables y leds   "},
+  {"Prueba 2", "keypad          "},
+  {"Prueba 3", "rfid            "},
+  {"Prueba 4", "led matrix      "},
+  {"Prueba 5", "joystick        "},
+  {"Prueba 6", "dates           "},
+  {"Prueba 7", "dignity         "},
   {"Prueba 8", "Prueba8 - Descripcion"},
   {"Prueba 9", "Prueba9 - Descripcion"}
 };
@@ -325,7 +325,7 @@ void setup() {
 
   // set game_step
   read_game_step();
-  game_step = 6;  //DELETE---------------------------------------------------------------------
+  game_step = 5;  //DELETE---------------------------------------------------------------------
  
 
 }
@@ -984,7 +984,7 @@ bool check_word()
 {
   if (!digitalRead(GPIO_ENC_SW)){
     display_val = display_val + letter;
-    Serial.println(display_val);
+    //Serial.println(display_val);
     if (display_val.length()==8){
       if(display_val==GS7_PASSWORD){
         display_val="";
