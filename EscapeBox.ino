@@ -453,10 +453,9 @@ void loop() {
   }
 
   // Increment recording time
-  increment_recording_time();
-  
-
-
+  if(millis()-loop_ms>=RECORDING_MS){
+    increment_recording_time(1);
+  }
 }
 
 
@@ -471,13 +470,12 @@ void loop() {
 // ********************************************************************************************* //
 
 // Increment recording time
-void increment_recording_time()
+void increment_recording_time(int minutes)
 {
-  if(millis()-loop_ms>=RECORDING_MS){
     loop_ms = millis();
     
     int current_minutes = EEPROM.read(0)*1000 + EEPROM.read(1)*100 + EEPROM.read(2)*10 + 
-      EEPROM.read(3) + 1;
+      EEPROM.read(3) + minutes;
     
     int i=0;
     char digits[4];  
@@ -500,7 +498,6 @@ void increment_recording_time()
     EEPROM.write(1,digits[2]);
     EEPROM.write(2,digits[1]);
     EEPROM.write(3,digits[0]);
-  }
 }
 
 // Save game step
@@ -634,6 +631,11 @@ void play_clue ()
     lcd_print(clue_1, clue_2, TIMEOUT_LARGE);
   }
   flag_playing_clue = false;
+
+  //increment current time -> penalization (1,2 or 3 minutes)
+  increment_recording_time(index_next_clue+1);
+  play_buzzer(BUZZER_KEY);
+  
 }
 
 // ********************************************************************************************* //
