@@ -32,6 +32,7 @@
 #include "Morse.h"
 #include "Melody.h"
 #include "LedControl.h"
+#include "TM1637.h"
 
 // ********************************************************************************************* //
 // PASSWORDS
@@ -62,6 +63,8 @@ const String GS4_PASSWORD  =              "LLRRUD";
 // CLUES
 #define GPIO_CLUE                         2
 #define GPIO_BUZZER                       38
+#define GPIO_TIMER_CLK                    48
+#define GPIO_TIMER_DIO                    49
 // GAME STEP 0: wires + leds
 #define GPIO_PULSE                        3
 #define GPIO_LED_R                        22
@@ -100,6 +103,7 @@ const String GS4_PASSWORD  =              "LLRRUD";
 #define GPIO_DISPLAY_DIN                  42
 #define GPIO_DISPLAY_CS                   44
 #define GPIO_DISPLAY_CLK                  46
+
 
 // ********************************************************************************************* //
 // CONSTANTS
@@ -187,8 +191,10 @@ Keypad customKeypad = Keypad(makeKeymap(hexaKeys), rowPins, colPins, 4, 4);
 // encoder
 int encoder_max_val;
 int encoder_min_val;
-// display
+// display 8-digits
 LedControl lc=LedControl(GPIO_DISPLAY_DIN,GPIO_DISPLAY_CLK,GPIO_DISPLAY_CS,1);
+// display 4-digits
+TM1637 tm1637(GPIO_TIMER_CLK,GPIO_TIMER_DIO);
 // general
 unsigned long loop_ms = millis();
 unsigned long total_ms;
@@ -318,15 +324,21 @@ void setup() {
   matrix.fillScreen(0);
   matrix.write();
 
-  // Init display
+  // Init display 8-digits
   //lc.shutdown(0,false);      // switch off energy saver
   lc.setIntensity(0,2);      // set brightness
   lc.clearDisplay(0);        // clear screen
 
+  // Init display 4-digits
+  tm1637.init();
+  tm1637.set(BRIGHT_TYPICAL);
+  
   // set game_step
   read_game_step();
-  game_step = 5;  //DELETE---------------------------------------------------------------------
- 
+  game_step = 6;  //DELETE---------------------------------------------------------------------
+
+  // show time
+  increment_recording_time(0);
 
 }
 
@@ -493,12 +505,17 @@ void increment_recording_time(int minutes)
     //Serial.print(digits[2],DEC);
     //Serial.print(digits[1],DEC);
     //Serial.println(digits[0],DEC);
+    tm1637.display(0,int8_t(digits[3]));
+    tm1637.display(1,int8_t(digits[2]));
+    tm1637.display(2,int8_t(digits[1]));
+    tm1637.display(3,int8_t(digits[0]));
 
     EEPROM.write(0,digits[3]);
     EEPROM.write(1,digits[2]);
     EEPROM.write(2,digits[1]);
     EEPROM.write(3,digits[0]);
 }
+
 
 // Save game step
 void write_game_step()
