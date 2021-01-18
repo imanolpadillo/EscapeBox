@@ -308,8 +308,12 @@ void setup() {
   pinMode(GPIO_ENC_SW, INPUT);
   digitalWrite(GPIO_ENC_SW, HIGH);
   pinMode(GPIO_PLAY_SONG, INPUT);
-  // Setup serial port
+  
+  // Setup serial comm
   Serial.begin(9600);  
+
+  // Setup Uno serial comm
+  Serial2.begin(9600);
 
   // Setup SPI and rfid
   SPI.begin();
@@ -335,7 +339,7 @@ void setup() {
   
   // set game_step
   read_game_step();
-  game_step = 6;  //DELETE---------------------------------------------------------------------
+  game_step = 0;  //DELETE---------------------------------------------------------------------
 
   // show time
   increment_recording_time(0);
@@ -347,6 +351,7 @@ void setup() {
 // ********************************************************************************************* //
 void loop() {
   // waste
+  //Serial2.print(2,DEC);
   //char led[2]="5";
   //Serial.write(led,1);
   
@@ -542,7 +547,7 @@ void increment_game_step ()
     play_buzzer(BUZZER_SUCCESS);
   }
   // A led will be played when a step is finished
-  Serial.print(game_step,DEC);
+  Serial2.print(game_step,DEC);
   //Serial.print('A'); 
   write_game_step();
 }
