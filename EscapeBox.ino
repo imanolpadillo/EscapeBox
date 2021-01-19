@@ -29,6 +29,7 @@
 #include <MFRC522.h>
 #include <Adafruit_GFX.h>
 #include <Max72xxPanel.h>
+#include <TinyGPS++.h>
 #include "Morse.h"
 #include "Melody.h"
 #include "LedControl.h"
@@ -103,7 +104,9 @@ const String GS4_PASSWORD  =              "LLRRUD";
 #define GPIO_DISPLAY_DIN                  42
 #define GPIO_DISPLAY_CS                   44
 #define GPIO_DISPLAY_CLK                  46
-
+// GAME STEP 7: gps
+#define GPIO_GPS_TX                       14
+#define GPIO_GPS_RX                       15
 
 // ********************************************************************************************* //
 // CONSTANTS
@@ -270,6 +273,9 @@ String morse_0 = ".-.. --- ... / .--. .. ... - --- .-.. . .-. --- ... / -.. . .-
 String display_val="";
 char letter;
 
+//game_step 7: gps
+TinyGPSPlus gps;
+
 // ********************************************************************************************* //
 // SETUP
 // ********************************************************************************************* //
@@ -315,6 +321,9 @@ void setup() {
   // Setup Uno serial comm
   Serial2.begin(9600);
 
+  // Setup gps serial comm
+  Serial3.begin(9600);
+
   // Setup SPI and rfid
   SPI.begin();
   mfrc522.PCD_Init();
@@ -339,7 +348,7 @@ void setup() {
   
   // set game_step
   read_game_step();
-  game_step = 0;  //DELETE---------------------------------------------------------------------
+  game_step = 7;  //DELETE---------------------------------------------------------------------
 
   // show time
   increment_recording_time(0);
@@ -468,6 +477,21 @@ void loop() {
         increment_game_step();
     }
   }
+
+  // GAME_STEP_7
+  else if (game_step == 7)
+  {
+    while (Serial3.available()>0) {
+      int c = Serial3.read();
+      if (gps.encode(c)){
+        if (check_gps() == true){
+            increment_game_step();
+        }
+      }
+    }
+  }
+
+  //Serial.println("step+");
 
   // Increment recording time
   if(millis()-loop_ms>=RECORDING_MS){
@@ -1111,4 +1135,22 @@ void write_letter(int option)
   matrix.fillScreen(LOW);
   matrix.drawChar(1, 0, letter, HIGH, LOW, 1);
   matrix.write();
+}
+
+// ********************************************************************************************* //
+// GAME STEP 7
+// ********************************************************************************************* //
+// Return a rounded float. Number of decimals is a function input.
+float DecimalRound(float input, int decimals)
+{
+  float scale=pow(10,decimals);
+  return round(input*scale)/scale;
+}
+
+bool check_gps()
+{
+  double latitude = DecimalRound(gps.location.lat(),6);
+  double longitude = DecimalRound(gps.location.lng(),6);
+  Serial.println("Location:" + String(latitude,6) + "; " + String(longitude,6));
+  return false;
 }
