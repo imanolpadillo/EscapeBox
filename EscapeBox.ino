@@ -100,6 +100,14 @@ const String GS4_PASSWORD  =              "LLRRUD";
 #define GPIO_ENC_DT                       18   
 #define GPIO_ENC_SW                       40  
 #define GPIO_PLAY_SONG                    32
+#define GPIO_DATE1_CLK                    41
+#define GPIO_DATE1_DIO                    39
+#define GPIO_DATE2_CLK                    47
+#define GPIO_DATE2_DIO                    45
+#define GPIO_DATE3_CLK                    5
+#define GPIO_DATE3_DIO                    4
+#define GPIO_DATE4_CLK                    7
+#define GPIO_DATE4_DIO                    6
 // GAME STEP 6: display
 #define GPIO_DISPLAY_DIN                  42
 #define GPIO_DISPLAY_CS                   44
@@ -197,7 +205,7 @@ int encoder_min_val;
 // display 8-digits
 LedControl lc=LedControl(GPIO_DISPLAY_DIN,GPIO_DISPLAY_CLK,GPIO_DISPLAY_CS,1);
 // display 4-digits
-TM1637 tm1637(GPIO_TIMER_CLK,GPIO_TIMER_DIO);
+TM1637 recording_time(GPIO_TIMER_CLK,GPIO_TIMER_DIO);
 // general
 unsigned long loop_ms = millis();
 unsigned long total_ms;
@@ -268,6 +276,10 @@ int melody_2[] = {
   };
 
 String morse_0 = ".-.. --- ... / .--. .. ... - --- .-.. . .-. --- ... / -.. . .-.. / . -.-. .-.. .. .--. ... .";
+TM1637 date1(GPIO_DATE1_CLK,GPIO_DATE1_DIO);
+TM1637 date2(GPIO_DATE2_CLK,GPIO_DATE2_DIO);
+TM1637 date3(GPIO_DATE3_CLK,GPIO_DATE3_DIO);
+TM1637 date4(GPIO_DATE4_CLK,GPIO_DATE4_DIO);
 
 //game_step 6: display
 String display_val="";
@@ -343,12 +355,20 @@ void setup() {
   lc.clearDisplay(0);        // clear screen
 
   // Init display 4-digits
-  tm1637.init();
-  tm1637.set(BRIGHT_TYPICAL);
+  recording_time.init();
+  recording_time.set(BRIGHT_TYPICAL);
+  date1.init();
+  date1.set(BRIGHT_TYPICAL);
+  date2.init();
+  date2.set(BRIGHT_TYPICAL);
+  date3.init();
+  date4.set(BRIGHT_TYPICAL);
+  date4.init();
+  date4.set(BRIGHT_TYPICAL);
   
   // set game_step
   read_game_step();
-  game_step = 7;  //DELETE---------------------------------------------------------------------
+  game_step = 5;  //DELETE---------------------------------------------------------------------
 
   // show time
   increment_recording_time(0);
@@ -534,10 +554,10 @@ void increment_recording_time(int minutes)
     //Serial.print(digits[2],DEC);
     //Serial.print(digits[1],DEC);
     //Serial.println(digits[0],DEC);
-    tm1637.display(0,int8_t(digits[3]));
-    tm1637.display(1,int8_t(digits[2]));
-    tm1637.display(2,int8_t(digits[1]));
-    tm1637.display(3,int8_t(digits[0]));
+    recording_time.display(0,int8_t(digits[3]));
+    recording_time.display(1,int8_t(digits[2]));
+    recording_time.display(2,int8_t(digits[1]));
+    recording_time.display(3,int8_t(digits[0]));
 
     EEPROM.write(0,digits[3]);
     EEPROM.write(1,digits[2]);
@@ -904,6 +924,17 @@ bool check_joystick()
 // Check encoder data
 bool check_date()
 {
+  //print date
+  if (song_index==0){
+    print_date(date1);
+  } else if (song_index==1){
+    print_date(date2);
+  } else if (song_index==2){
+    print_date(date3);
+  } else if (song_index==3){
+    print_date(date4);
+  }
+  
   //Serial.println(encoder_val);
   if (!digitalRead(GPIO_ENC_SW)){
     if (song_index == 0){
@@ -959,6 +990,31 @@ bool check_date()
     }
   }
   return false;
+}
+
+void print_date(TM1637 date_item)
+{
+  int i=0;
+  int date_val = encoder_val;
+  char digits[4];  
+  digits[3]=0;
+  digits[2]=0;
+  digits[1]=0;
+  digits[0]=0;
+  while(date_val>0 && i<4){
+    digits[i++] = date_val % 10; // you can change the 10 here and below to any number base
+    date_val /= 10;
+  }
+  date_item.display(0,int8_t(digits[3]));
+  date_item.display(1,int8_t(digits[2]));
+  date_item.display(2,int8_t(digits[1]));
+  date_item.display(3,int8_t(digits[0]));
+  Serial.print(encoder_val);
+  Serial.print(date_val);
+  Serial.print(digits[3],DEC);
+  Serial.print(digits[2],DEC);
+  Serial.print(digits[1],DEC);
+  Serial.println(digits[0],DEC);
 }
 
 void play_morse(String data)
