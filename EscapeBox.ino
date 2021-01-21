@@ -55,7 +55,9 @@ const String GS4_PASSWORD  =              "LLRRUD";
 #define YEAR_3                            1513
 // GAME STEP 6: display
 #define GS7_PASSWORD                      "DIGNIDAD"
-
+// GAME STEP 7: gps
+const double GPS_TARGET_LATITUDE =          42.841465;    
+const double GPS_TARGET_LONGITUDE =         -2.66903;           
    
 
 // ********************************************************************************************* //
@@ -146,7 +148,36 @@ const String GS4_PASSWORD  =              "LLRRUD";
 #define ENCODER_MAX_VAL_GS6               25
 #define ENCODER_MIN_VAL_GS6               0
 // gps
-#define GPS_LED_TIMEOUT                   100
+#define GPS_LED_TIMEOUT                   500
+#define GPS_TARGET_DISTANCE               500  //meters
+// buzzer
+int melody_0[] = {
+  NOTE_E5, 4,  NOTE_B4,8,  NOTE_C5,8,  NOTE_D5,4,  NOTE_C5,8,  NOTE_B4,8,
+  NOTE_A4, 4,  NOTE_A4,8,  NOTE_C5,8,  NOTE_E5,4,  NOTE_D5,8,  NOTE_C5,8,
+  NOTE_B4, -4,  NOTE_C5,8,  NOTE_D5,4,  NOTE_E5,4,
+  NOTE_C5, 4,  NOTE_A4,4,  NOTE_A4,8,  NOTE_A4,4,  NOTE_B4,8,  NOTE_C5,8,
+  NOTE_D5, -4,  NOTE_F5,8,  NOTE_A5,4,  NOTE_G5,8,  NOTE_F5,8,
+  NOTE_E5, -4,  NOTE_C5,8,  NOTE_E5,4,  NOTE_D5,8,  NOTE_C5,8,
+  NOTE_B4, 4,  NOTE_B4,8,  NOTE_C5,8,  NOTE_D5,4,  NOTE_E5,4,
+  NOTE_C5, 4,  NOTE_A4,4,  NOTE_A4,4, REST, 4,
+};
+int melody_1[] = {
+  NOTE_FS5,8, NOTE_FS5,8,NOTE_D5,8, NOTE_B4,8, REST,8, NOTE_B4,8, REST,8, NOTE_E5,8, 
+  REST,8, NOTE_E5,8, REST,8, NOTE_E5,8, NOTE_GS5,8, NOTE_GS5,8, NOTE_A5,8, NOTE_B5,8,
+  NOTE_A5,8, NOTE_A5,8, NOTE_A5,8, NOTE_E5,8, REST,8, NOTE_D5,8, REST,8, NOTE_FS5,8, 
+  REST,8, NOTE_FS5,8, REST,8, NOTE_FS5,8, NOTE_E5,8, NOTE_E5,8, NOTE_FS5,8, NOTE_E5,8,
+  NOTE_FS5,8, NOTE_FS5,8,NOTE_D5,8, NOTE_B4,8, REST,8, NOTE_B4,8, REST,8, NOTE_E5,8, 
+  };
+
+int melody_2[] = {
+  REST,2, REST,4, REST,8, NOTE_DS4,8, 
+  NOTE_E4,-4, REST,8, NOTE_FS4,8, NOTE_G4,-4, REST,8, NOTE_DS4,8,
+  NOTE_E4,-8, NOTE_FS4,8,  NOTE_G4,-8, NOTE_C5,8, NOTE_B4,-8, NOTE_E4,8, NOTE_G4,-8, NOTE_B4,8,   
+  NOTE_AS4,2, NOTE_A4,-16, NOTE_G4,-16, NOTE_E4,-16, NOTE_D4,-16, 
+  NOTE_E4,2,
+  };
+String morse_0 = ".-.. --- ... / .--. .. ... - --- .-.. . .-. --- ... / -.. . .-.. / . -.-. .-.. .. .--. ... .";
+
 
 String LMATRIX_TAPE = "www.escapebox.com";
 // Messages                                1234567890123456789012345678901234567890
@@ -236,49 +267,7 @@ Morse morse(GPIO_BUZZER);
 Melody melody(GPIO_BUZZER);
 int song_index=0;
 
-int melody_0[] = {
 
-  //Based on the arrangement at https://www.flutetunes.com/tunes.php?id=192
-  
-  NOTE_E5, 4,  NOTE_B4,8,  NOTE_C5,8,  NOTE_D5,4,  NOTE_C5,8,  NOTE_B4,8,
-  NOTE_A4, 4,  NOTE_A4,8,  NOTE_C5,8,  NOTE_E5,4,  NOTE_D5,8,  NOTE_C5,8,
-  NOTE_B4, -4,  NOTE_C5,8,  NOTE_D5,4,  NOTE_E5,4,
-  NOTE_C5, 4,  NOTE_A4,4,  NOTE_A4,8,  NOTE_A4,4,  NOTE_B4,8,  NOTE_C5,8,
-
-  NOTE_D5, -4,  NOTE_F5,8,  NOTE_A5,4,  NOTE_G5,8,  NOTE_F5,8,
-  NOTE_E5, -4,  NOTE_C5,8,  NOTE_E5,4,  NOTE_D5,8,  NOTE_C5,8,
-  NOTE_B4, 4,  NOTE_B4,8,  NOTE_C5,8,  NOTE_D5,4,  NOTE_E5,4,
-  NOTE_C5, 4,  NOTE_A4,4,  NOTE_A4,4, REST, 4,
-};
-int melody_1[] = {
-
-  // Take on me, by A-ha
-  // Score available at https://musescore.com/user/27103612/scores/4834399
-  // Arranged by Edward Truong
-
-  NOTE_FS5,8, NOTE_FS5,8,NOTE_D5,8, NOTE_B4,8, REST,8, NOTE_B4,8, REST,8, NOTE_E5,8, 
-  REST,8, NOTE_E5,8, REST,8, NOTE_E5,8, NOTE_GS5,8, NOTE_GS5,8, NOTE_A5,8, NOTE_B5,8,
-  NOTE_A5,8, NOTE_A5,8, NOTE_A5,8, NOTE_E5,8, REST,8, NOTE_D5,8, REST,8, NOTE_FS5,8, 
-  REST,8, NOTE_FS5,8, REST,8, NOTE_FS5,8, NOTE_E5,8, NOTE_E5,8, NOTE_FS5,8, NOTE_E5,8,
-  NOTE_FS5,8, NOTE_FS5,8,NOTE_D5,8, NOTE_B4,8, REST,8, NOTE_B4,8, REST,8, NOTE_E5,8, 
-  
-  };
-
-int melody_2[] = {
-
-  // Pink Panther theme
-  // Score available at https://musescore.com/benedictsong/the-pink-panther
-  // Theme by Masato Nakamura, arranged by Teddy Mason
-
-  REST,2, REST,4, REST,8, NOTE_DS4,8, 
-  NOTE_E4,-4, REST,8, NOTE_FS4,8, NOTE_G4,-4, REST,8, NOTE_DS4,8,
-  NOTE_E4,-8, NOTE_FS4,8,  NOTE_G4,-8, NOTE_C5,8, NOTE_B4,-8, NOTE_E4,8, NOTE_G4,-8, NOTE_B4,8,   
-  NOTE_AS4,2, NOTE_A4,-16, NOTE_G4,-16, NOTE_E4,-16, NOTE_D4,-16, 
-  NOTE_E4,2,
- 
-  };
-
-String morse_0 = ".-.. --- ... / .--. .. ... - --- .-.. . .-. --- ... / -.. . .-.. / . -.-. .-.. .. .--. ... .";
 TM1637 date1(GPIO_DATE1_CLK,GPIO_DATE1_DIO);
 TM1637 date2(GPIO_DATE2_CLK,GPIO_DATE2_DIO);
 TM1637 date3(GPIO_DATE3_CLK,GPIO_DATE3_DIO);
@@ -291,7 +280,10 @@ char letter;
 //game_step 7: gps
 TinyGPSPlus gps;
 bool gps_led_status = false;
+bool gps_in_target = false;
 long gps_led_ms = 0;
+double latitude;
+double longitude;
 
 // ********************************************************************************************* //
 // SETUP
@@ -488,6 +480,7 @@ void loop() {
   // GAME_STEP_7
   else if (game_step == 7)
   {
+    play_gps_led();
     while (Serial3.available()>0) {
       int c = Serial3.read();
       if (gps.encode(c)){
@@ -1211,17 +1204,25 @@ float DecimalRound(float input, int decimals)
 
 bool check_gps()
 {
-  double latitude = DecimalRound(gps.location.lat(),6);
-  double longitude = DecimalRound(gps.location.lng(),6);
-  play_gps_led(int(latitude), int(longitude));
+  latitude = DecimalRound(gps.location.lat(),6);
+  longitude = DecimalRound(gps.location.lng(),6);
   Serial.println("Location:" + String(latitude,6) + "; " + String(longitude,6));
+  if (int(latitude) != 0 and int(longitude) != 0){
+    double distance = TinyGPSPlus::distanceBetween(
+      GPS_TARGET_LATITUDE, GPS_TARGET_LONGITUDE, latitude, longitude);
+    Serial.print("Distance to target:");
+    Serial.println(distance);
+    if (distance < GPS_TARGET_DISTANCE){
+      digitalWrite(GPIO_GPS_LED, LOW);
+      return true;
+    }
+  }
   return false;
 }
 
-void play_gps_led(int latitude, int longitude)
+void play_gps_led()
 {
-  
-  if (latitude == 0 or longitude == 0){
+  if (int(latitude) == 0 or int(longitude) == 0){
     // blink led
     if (gps_led_status == true and (millis()-gps_led_ms>GPS_LED_TIMEOUT)){
       gps_led_status = false;
