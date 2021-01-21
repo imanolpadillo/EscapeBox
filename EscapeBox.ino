@@ -389,7 +389,7 @@ void loop() {
   }
 
   //lcd info
-  lcd_print(MSG_GAMESTEP[game_step][0],MSG_GAMESTEP[game_step][1],0);
+  lcd_print(MSG_GAMESTEP[game_step][0],MSG_GAMESTEP[game_step][1],0);  // disable with gps
   
   // GAME_STEP 0
   if (game_step == 0)
@@ -481,6 +481,7 @@ void loop() {
   else if (game_step == 7)
   {
     play_gps_led();
+    /*
     while (Serial3.available()>0) {
       int c = Serial3.read();
       if (gps.encode(c)){
@@ -488,6 +489,20 @@ void loop() {
             increment_game_step();
         }
       }
+    }
+    */
+    while (Serial3.available()>0) {
+      char c = Serial3.read();
+      //Serial.write(c);
+      gps.encode(c);
+      //Serial.write(Serial3.read());
+      //gps.encode(Serial3.read());
+    }
+    Serial.print("Sentences that failed checksum=");
+    Serial.println(gps.failedChecksum());
+ 
+    if (check_gps() == true){
+      increment_game_step();
     }
   }
 
@@ -612,7 +627,7 @@ void lcd_print(String line1, String line2, int timeout)
     lcd.setCursor(0, 1);
     lcd.print(line2);
     if (timeout != 0){
-      delay(timeout);
+    delay(timeout);  
       lcd.clear();
     }
   }
