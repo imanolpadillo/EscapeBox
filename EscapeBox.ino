@@ -115,6 +115,7 @@ const String GS4_PASSWORD  =              "LLRRUD";
 // GAME STEP 7: gps
 #define GPIO_GPS_TX                       14
 #define GPIO_GPS_RX                       15
+#define GPIO_GPS_LED                      43
 
 // ********************************************************************************************* //
 // CONSTANTS
@@ -144,6 +145,8 @@ const String GS4_PASSWORD  =              "LLRRUD";
 #define ENCODER_MIN_VAL_GS5               1500
 #define ENCODER_MAX_VAL_GS6               25
 #define ENCODER_MIN_VAL_GS6               0
+// gps
+#define GPS_LED_TIMEOUT                   100
 
 String LMATRIX_TAPE = "www.escapebox.com";
 // Messages                                1234567890123456789012345678901234567890
@@ -287,6 +290,8 @@ char letter;
 
 //game_step 7: gps
 TinyGPSPlus gps;
+bool gps_led_status = false;
+long gps_led_ms = 0;
 
 // ********************************************************************************************* //
 // SETUP
@@ -326,6 +331,8 @@ void setup() {
   pinMode(GPIO_ENC_SW, INPUT);
   digitalWrite(GPIO_ENC_SW, HIGH);
   pinMode(GPIO_PLAY_SONG, INPUT);
+  // GAME STEP 7: gps
+  pinMode(GPIO_GPS_LED, OUTPUT);
   
   // Setup serial comm
   Serial.begin(9600);  
@@ -368,7 +375,7 @@ void setup() {
   
   // set game_step
   read_game_step();
-  game_step = 5;  //DELETE---------------------------------------------------------------------
+  game_step = 7;  //DELETE---------------------------------------------------------------------
 
   // show time
   increment_recording_time(0);
@@ -458,43 +465,23 @@ void loop() {
     encoder_max_val = ENCODER_MAX_VAL_GS5;
     encoder_min_val = ENCODER_MIN_VAL_GS5;
     if (check_date() == true){
-        encoder_val=0;
-        increment_game_step();
+       encoder_val=0;
+       increment_game_step();
     }
   }
   // GAME_STEP_6
   else if (game_step == 6)
   {
     if (encoder_max_val != ENCODER_MAX_VAL_GS6){
-      encoder_max_val = ENCODER_MAX_VAL_GS6;
-      encoder_min_val = ENCODER_MIN_VAL_GS6;  
-      lc.shutdown(0,false);
-      lc.clearDisplay(0);
-      
-      delay(250);
-      lc.setDigit(0,3,(byte)9,false);  //I
-      delay(250);
-      lc.setDigit(0,2,(byte)4,false);  //D
-      delay(250);
-      lc.setDigit(0,1,(byte)1,false);  //A
-      delay(250);
-      lc.setDigit(0,0,(byte)4,false);  //D
-      delay(250);
-      lc.setDigit(0,7,(byte)4,false);  //D
-      delay(250);
-      lc.setDigit(0,6,(byte)9,false);  //I
-      delay(250);
-      lc.setDigit(0,5,(byte)7,false);  //G
-      delay(250);
-      lc.setChar(0,4,'E',false);       //N
+      set_digit8_password();
     }
     
     if (encoder_val>encoder_max_val){
       encoder_val = encoder_min_val;
     }
     if (check_word() == true){
-        encoder_val=0;
-        increment_game_step();
+      encoder_val=0;
+      increment_game_step();
     }
   }
 
@@ -1009,12 +996,6 @@ void print_date(TM1637 date_item)
   date_item.display(1,int8_t(digits[2]));
   date_item.display(2,int8_t(digits[1]));
   date_item.display(3,int8_t(digits[0]));
-  Serial.print(encoder_val);
-  Serial.print(date_val);
-  Serial.print(digits[3],DEC);
-  Serial.print(digits[2],DEC);
-  Serial.print(digits[1],DEC);
-  Serial.println(digits[0],DEC);
 }
 
 void play_morse(String data)
@@ -1082,6 +1063,31 @@ void doEncodeDT()
 // ********************************************************************************************* //
 // GAME STEP 6
 // ********************************************************************************************* //
+
+// Set digit-8 password
+void set_digit8_password(){
+  encoder_max_val = ENCODER_MAX_VAL_GS6;
+  encoder_min_val = ENCODER_MIN_VAL_GS6;  
+  lc.shutdown(0,false);
+  lc.clearDisplay(0);
+  
+  delay(250);
+  lc.setDigit(0,3,(byte)9,false);  //I
+  delay(250);
+  lc.setDigit(0,2,(byte)4,false);  //D
+  delay(250);
+  lc.setDigit(0,1,(byte)1,false);  //A
+  delay(250);
+  lc.setDigit(0,0,(byte)4,false);  //D
+  delay(250);
+  lc.setDigit(0,7,(byte)4,false);  //D
+  delay(250);
+  lc.setDigit(0,6,(byte)9,false);  //I
+  delay(250);
+  lc.setDigit(0,5,(byte)7,false);  //G
+  delay(250);
+  lc.setChar(0,4,'E',false);       //N
+}
 
 // Check encoder data
 bool check_word()
@@ -1207,6 +1213,28 @@ bool check_gps()
 {
   double latitude = DecimalRound(gps.location.lat(),6);
   double longitude = DecimalRound(gps.location.lng(),6);
+  play_gps_led(int(latitude), int(longitude));
   Serial.println("Location:" + String(latitude,6) + "; " + String(longitude,6));
   return false;
+}
+
+void play_gps_led(int latitude, int longitude)
+{
+  
+  if (latitude == 0 or longitude == 0){
+    // blink led
+    if (gps_led_status == true and (millis()-gps_led_ms>GPS_LED_TIMEOUT)){
+      gps_led_status = false;
+      gps_led_ms = millis();
+      digitalWrite(GPIO_GPS_LED, LOW);
+    }else if(gps_led_status == false and (millis()-gps_led_ms>GPS_LED_TIMEOUT)){
+      gps_led_status = true;
+      gps_led_ms = millis();
+      digitalWrite(GPIO_GPS_LED, HIGH);
+    }
+  }
+  else {
+    digitalWrite(GPIO_GPS_LED, HIGH);
+    gps_led_status=true;
+  }
 }
