@@ -362,7 +362,7 @@ void setup() {
   date2.init();
   date2.set(BRIGHT_TYPICAL);
   date3.init();
-  date4.set(BRIGHT_TYPICAL);
+  date3.set(BRIGHT_TYPICAL);
   date4.init();
   date4.set(BRIGHT_TYPICAL);
   
