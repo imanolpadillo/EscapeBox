@@ -117,7 +117,7 @@ const double GPS_TARGET_LONGITUDE =         -2.66903;
 // GAME STEP 7: gps
 #define GPIO_GPS_TX                       14
 #define GPIO_GPS_RX                       15
-#define GPIO_GPS_LED                      43
+#define GPIO_GPS_LED                      56  //43
 
 // ********************************************************************************************* //
 // CONSTANTS
@@ -223,6 +223,8 @@ const String MSG_CLUE_2[MAX_STEPS][MAX_CLUES] = {
 LiquidCrystal_I2C lcd(LCD_ADDRESS, 16, 2);
 String lcd_msg_1;
 String lcd_msg_2;
+bool lcd_scroll_flag = false;
+long lcd_scroll_ms=millis();
 // keypad
 const char hexaKeys[4][4] = {
   {'1', '2', '3', 'A'},
@@ -389,7 +391,7 @@ void loop() {
   }
 
   //lcd info
-  lcd_print(MSG_GAMESTEP[game_step][0],MSG_GAMESTEP[game_step][1],0);  // disable with gps
+  lcd_print(MSG_GAMESTEP[game_step][0],MSG_GAMESTEP[game_step][1],0);  
   
   // GAME_STEP 0
   if (game_step == 0)
@@ -627,12 +629,21 @@ void lcd_print(String line1, String line2, int timeout)
     lcd.setCursor(0, 1);
     lcd.print(line2);
     if (timeout != 0){
-    delay(timeout);  
+      delay(timeout);  
       lcd.clear();
     }
   }
   else {
-    lcd_scroll();
+    if (lcd_scroll_flag==true && (millis()-lcd_scroll_ms)>LCD_SPEED)
+    {
+      lcd_scroll_flag=false;
+      lcd_scroll_ms=millis();
+    }
+    else if (lcd_scroll_flag==false)
+    {
+      lcd_scroll_flag=true;
+      lcd_scroll();
+    }
   }
   
 }
@@ -642,7 +653,7 @@ void lcd_scroll()
 {
   if (lcd_msg_1.length()>16 or lcd_msg_2.length()>16){
     lcd.scrollDisplayLeft();
-    delay(LCD_SPEED);
+    //delay(LCD_SPEED);
   }
 }
 
