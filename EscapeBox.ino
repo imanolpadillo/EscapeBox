@@ -38,9 +38,11 @@
 // ********************************************************************************************* //
 // PASSWORDS
 // ********************************************************************************************* //
+// KEYPAD COMMANDS
+#define RESET_RECORDING_TIME              "311252"
+#define CMD_GOTO_2                        "2222"
 // GAME STEP 1: keyboard
 #define GS1_PASSWORD                      "1234"
-#define RESET_RECORDING_TIME              "311252"
 // GAME STEP 2: rfid
 #define RFID_WHITE                        "3221477164"
 #define RFID_BLUE                         "575574115"
@@ -369,7 +371,7 @@ void setup() {
   
   // set game_step
   read_game_step();
-  game_step = 7;  //DELETE---------------------------------------------------------------------
+  game_step = 3;  //DELETE---------------------------------------------------------------------
 
   // show time
   increment_recording_time(0);
@@ -392,6 +394,18 @@ void loop() {
 
   //lcd info
   lcd_print(MSG_GAMESTEP[game_step][0],MSG_GAMESTEP[game_step][1],0);  
+
+  //read keypad
+  char customKey = customKeypad.getKey();
+  if (isAlphaNumeric(customKey) or isDigit(customKey)
+    or customKey == '*'){
+    play_buzzer(BUZZER_KEY);
+    password_val = password_val + customKey;
+  }
+  else if(customKey == '#'){
+    check_password("");
+  }
+  
   
   // GAME_STEP 0
   if (game_step == 0)
@@ -406,11 +420,8 @@ void loop() {
   // GAME_STEP_1
   else if (game_step == 1)
   {
-    char customKey = customKeypad.getKey();
-    if (isAlphaNumeric(customKey) or isDigit(customKey)
-      or customKey == '*' or customKey == '#'){
-      play_buzzer(BUZZER_KEY);
-      if (check_password(customKey,GS1_PASSWORD) == true){
+    if (customKey == '#'){
+      if (check_password(GS1_PASSWORD) == true){
         increment_game_step();
       }
     }
@@ -434,11 +445,8 @@ void loop() {
       lmatrix_index = 0;
     }
     // read keypad
-    char customKey = customKeypad.getKey();
-    if (isAlphaNumeric(customKey) or isDigit(customKey)
-      or customKey == '*' or customKey == '#'){
-      play_buzzer(BUZZER_KEY);
-      if (check_password(customKey,GS3_PASSWORD) == true){
+    if (customKey == '#'){
+      if (check_password(GS3_PASSWORD) == true){
         increment_game_step();
         // empty led matrix
         matrix.fillScreen(0);
@@ -514,6 +522,12 @@ void loop() {
   if(millis()-loop_ms>=RECORDING_MS){
     increment_recording_time(1);
   }
+
+  // check error keypad command
+  if (password_val != "" and customKey == '#'){
+    password_val = "";
+    play_buzzer(BUZZER_ERROR);
+  }
 }
 
 
@@ -588,9 +602,14 @@ void increment_game_step ()
     play_buzzer(BUZZER_SUCCESS);
   }
   // A led will be played when a step is finished
-  Serial2.print(game_step,DEC);
-  //Serial.print('A'); 
+  play_game_step_leds();
   write_game_step();
+}
+
+// Play game step leds
+void play_game_step_leds()
+{
+  Serial2.print(game_step,DEC);
 }
 
 // Play buzzer tone
@@ -710,6 +729,42 @@ void play_clue ()
   
 }
 
+// Check keypad entered password
+bool check_password(String password)
+{
+  // Game step password
+  if(password != ""){
+    if (password_val == password){
+      password_val = "";
+      return true;
+    }
+    else{
+      play_buzzer(BUZZER_ERROR);
+      password_val = "";
+    }
+  }
+  // Key command
+  else{
+    if (password_val == RESET_RECORDING_TIME){
+      //EEPROM reset recording time
+      EEPROM.write(0,0);
+      EEPROM.write(1,0);
+      EEPROM.write(2,0);
+      EEPROM.write(3,0);
+      play_buzzer(BUZZER_SUCCESS);
+      password_val = "";
+    }
+    else if (password_val == CMD_GOTO_2){
+      game_step = 2;
+      write_game_step();
+      play_buzzer(BUZZER_SUCCESS);
+      play_game_step_leds();
+      password_val = "";
+    }
+  }
+  return false;
+}
+
 // ********************************************************************************************* //
 // GAME STEP 0
 // ********************************************************************************************* //
@@ -782,33 +837,6 @@ void play_leds ()
 // GAME STEP 1
 // ********************************************************************************************* //
 
-// Interrupt function when pressing pulse
-bool check_password(char key, String password)
-{
-  if (key=='#'){
-    if (password_val == password){
-      password_val = "";
-      return true;
-    }
-    else if (password_val == RESET_RECORDING_TIME){
-      //EEPROM reset recording time
-      EEPROM.write(0,0);
-      EEPROM.write(1,0);
-      EEPROM.write(2,0);
-      EEPROM.write(3,0);
-      play_buzzer(BUZZER_SUCCESS);
-      password_val = "";
-    }
-    else{
-      play_buzzer(BUZZER_ERROR);
-      password_val = "";
-    }
-  }
-  else{
-    password_val = password_val + key;
-  }
-  return false;
-}
 
 // ********************************************************************************************* //
 // GAME STEP 2
