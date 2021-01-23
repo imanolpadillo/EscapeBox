@@ -40,6 +40,7 @@
 // ********************************************************************************************* //
 // KEYPAD COMMANDS
 #define CMD_RESET_RECORDING_TIME          "A311252"
+#define CMD_GOTO_1                        "A000000"
 #define CMD_GOTO_2                        "A667750"
 #define CMD_GOTO_3                        "A566777"
 #define CMD_GOTO_4                        "A756778"
@@ -376,6 +377,7 @@ void setup() {
   
   // set game_step
   read_game_step();
+  game_step=7;
 
   // show time
   increment_recording_time(0);
@@ -386,6 +388,7 @@ void setup() {
 // MAIN
 // ********************************************************************************************* //
 void loop() {
+
   
   // Clue
   if (flag_playing_clue == true){
@@ -510,15 +513,13 @@ void loop() {
       //Serial.write(Serial3.read());
       //gps.encode(Serial3.read());
     }
-    Serial.print("Sentences that failed checksum=");
-    Serial.println(gps.failedChecksum());
- 
+    //Serial.print("Sentences that failed checksum=");
+    //Serial.println(gps.failedChecksum());
+    
     if (check_gps() == true){
       increment_game_step();
     }
   }
-
-  //Serial.println("step+");
 
   // Increment recording time
   if(millis()-loop_ms>=RECORDING_MS){
@@ -530,6 +531,7 @@ void loop() {
     password_val = "";
     play_buzzer(BUZZER_ERROR);
   }
+
 }
 
 
@@ -756,6 +758,12 @@ bool check_password(String password)
       EEPROM.write(2,0);
       EEPROM.write(3,0);
       play_buzzer(BUZZER_SUCCESS);
+      password_val = "";
+      return true;
+    }
+    else if (password_val == CMD_GOTO_1){
+      game_step = 0;
+      activate_game_step();
       password_val = "";
       return true;
     }
@@ -1294,7 +1302,7 @@ bool check_gps()
 {
   latitude = DecimalRound(gps.location.lat(),6);
   longitude = DecimalRound(gps.location.lng(),6);
-  Serial.println("Location:" + String(latitude,6) + "; " + String(longitude,6));
+  //Serial.println("Location:" + String(latitude,6) + "; " + String(longitude,6));
   if (int(latitude) != 0 and int(longitude) != 0){
     double distance = TinyGPSPlus::distanceBetween(
       GPS_TARGET_LATITUDE, GPS_TARGET_LONGITUDE, latitude, longitude);
