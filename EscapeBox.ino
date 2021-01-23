@@ -186,6 +186,28 @@ int melody_2[] = {
   };
 String morse_0 = ".-.. --- ... / .--. .. ... - --- .-.. . .-. --- ... / -.. . .-.. / . -.-. .-.. .. .--. ... .";
 
+int melody_end[] = {
+  NOTE_AS4,8, NOTE_AS4,8, NOTE_AS4,8,//1
+  NOTE_F5,2, NOTE_C6,2,
+  NOTE_AS5,8, NOTE_A5,8, NOTE_G5,8, NOTE_F6,2, NOTE_C6,4,  
+  NOTE_AS5,8, NOTE_A5,8, NOTE_G5,8, NOTE_F6,2, NOTE_C6,4,  
+  NOTE_AS5,8, NOTE_A5,8, NOTE_AS5,8, NOTE_G5,2, NOTE_C5,8, NOTE_C5,8, NOTE_C5,8,
+  NOTE_F5,2, NOTE_C6,2,
+  NOTE_AS5,8, NOTE_A5,8, NOTE_G5,8, NOTE_F6,2, NOTE_C6,4,  
+  
+  NOTE_AS5,8, NOTE_A5,8, NOTE_G5,8, NOTE_F6,2, NOTE_C6,4, //8  
+  NOTE_AS5,8, NOTE_A5,8, NOTE_AS5,8, NOTE_G5,2, NOTE_C5,-8, NOTE_C5,16, 
+  NOTE_D5,-4, NOTE_D5,8, NOTE_AS5,8, NOTE_A5,8, NOTE_G5,8, NOTE_F5,8,
+  NOTE_F5,8, NOTE_G5,8, NOTE_A5,8, NOTE_G5,4, NOTE_D5,8, NOTE_E5,4,NOTE_C5,-8, NOTE_C5,16,
+  NOTE_D5,-4, NOTE_D5,8, NOTE_AS5,8, NOTE_A5,8, NOTE_G5,8, NOTE_F5,8,
+  
+  NOTE_C6,-8, NOTE_G5,16, NOTE_G5,2, REST,8, NOTE_C5,8,//13
+  NOTE_D5,-4, NOTE_D5,8, NOTE_AS5,8, NOTE_A5,8, NOTE_G5,8, NOTE_F5,8,
+  NOTE_F5,8, NOTE_G5,8, NOTE_A5,8, NOTE_G5,4, NOTE_D5,8, NOTE_E5,4,NOTE_C6,-8, NOTE_C6,16,
+  NOTE_F6,4, NOTE_DS6,8, NOTE_CS6,4, NOTE_C6,8, NOTE_AS5,4, NOTE_GS5,8, NOTE_G5,4, NOTE_F5,8,
+  NOTE_C6,1
+  
+  };
 
 String LMATRIX_TAPE = "www.escapebox.com";
 // Messages                                1234567890123456789012345678901234567890
@@ -296,6 +318,9 @@ bool gps_in_target = false;
 long gps_led_ms = 0;
 double latitude;
 double longitude;
+
+// game_step finsih
+bool melody_end_flag = false;
 
 // ********************************************************************************************* //
 // SETUP
@@ -523,8 +548,15 @@ void loop() {
     }
   }
 
+  // FINISH
+  else if (game_step == MAX_STEPS-1 and melody_end_flag == false)
+  {
+    melody.play_melody(melody_end, sizeof(melody_end));
+    melody_end_flag = true;
+  }
+
   // Increment recording time
-  if(millis()-loop_ms>=RECORDING_MS){
+  if((millis()-loop_ms>=RECORDING_MS) and (game_step<MAX_STEPS-1)){
     increment_recording_time(1);
   }
 
@@ -550,6 +582,8 @@ void loop() {
 // Increment recording time
 void increment_recording_time(int minutes)
 {
+  if (game_step < MAX_STEPS-1)
+  {  
     loop_ms = millis();
     
     int current_minutes = EEPROM.read(0)*1000 + EEPROM.read(1)*100 + EEPROM.read(2)*10 + 
@@ -580,6 +614,7 @@ void increment_recording_time(int minutes)
     EEPROM.write(1,digits[2]);
     EEPROM.write(2,digits[1]);
     EEPROM.write(3,digits[0]);
+  }
 }
 
 
