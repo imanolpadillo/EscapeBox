@@ -191,16 +191,18 @@ String LMATRIX_TAPE = "www.escapebox.com";
 // Messages                                1234567890123456789012345678901234567890
 #define MSG_INIT_1                        "   ESCAPE BOX   "
 #define MSG_INIT_2                        "  Mai y Mario   "
+
 const String MSG_GAMESTEP[MAX_STEPS][LCD_ROWS] = {
-  {"Prueba 1", "Cables y leds   "},
-  {"Prueba 2", "keypad          "},
-  {"Prueba 3", "rfid            "},
-  {"Prueba 4", "led matrix      "},
-  {"Prueba 5", "joystick        "},
-  {"Prueba 6", "dates           "},
-  {"Prueba 7", "dignity         "},
-  {"Prueba 8", "Prueba8 - Descripcion"},
-  {"Prueba 9", "Prueba9 - Descripcion"}
+  {"Prueba 1        ", "Cables y leds   "},
+  {"Prueba 2        ", "keypad          "},
+  {"Prueba 3        ", "rfid            "},
+  {"Prueba 4        ", "led matrix      "},
+  {"Prueba 5        ", "joystick        "},
+  {"Prueba 6        ", "dates           "},
+  {"Prueba 7        ", "dignity         "},
+  {"Prueba 8        ", "Prueba8 - Descripcion"},
+  {"Felicidades!", "Tiempo: " + String(EEPROM.read(0)*1000 + EEPROM.read(1)*100 + EEPROM.read(2)*10 + 
+      EEPROM.read(3)) + " min"}
 };
 const String MSG_CLUE_1[MAX_STEPS][MAX_CLUES] = {
   {"Prueba1 - Pista1", "Prueba1 - Pista2", "Prueba1 - Pista3"},
@@ -646,6 +648,7 @@ void play_buzzer (int option)
 void lcd_print(String line1, String line2, int timeout)
 {
   if (lcd_msg_1 != line1 and lcd_msg_2 != line2) {
+    lcd.clear();
     lcd_msg_1 = line1;
     lcd_msg_2 = line2;
     lcd.home();
