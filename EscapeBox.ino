@@ -39,8 +39,13 @@
 // PASSWORDS
 // ********************************************************************************************* //
 // KEYPAD COMMANDS
-#define RESET_RECORDING_TIME              "311252"
-#define CMD_GOTO_2                        "2222"
+#define CMD_RESET_RECORDING_TIME          "A311252"
+#define CMD_GOTO_2                        "A667750"
+#define CMD_GOTO_3                        "A566777"
+#define CMD_GOTO_4                        "A756778"
+#define CMD_GOTO_5                        "A465887"
+#define CMD_GOTO_6                        "A954644"
+#define CMD_GOTO_7                        "A087668"
 // GAME STEP 1: keyboard
 #define GS1_PASSWORD                      "1234"
 // GAME STEP 2: rfid
@@ -371,7 +376,6 @@ void setup() {
   
   // set game_step
   read_game_step();
-  game_step = 3;  //DELETE---------------------------------------------------------------------
 
   // show time
   increment_recording_time(0);
@@ -382,10 +386,6 @@ void setup() {
 // MAIN
 // ********************************************************************************************* //
 void loop() {
-  // waste
-  //Serial2.print(2,DEC);
-  //char led[2]="5";
-  //Serial.write(led,1);
   
   // Clue
   if (flag_playing_clue == true){
@@ -403,7 +403,9 @@ void loop() {
     password_val = password_val + customKey;
   }
   else if(customKey == '#'){
-    check_password("");
+    if (check_password("")==true){
+      customKey = '\0';
+    }
   }
   
   
@@ -598,6 +600,11 @@ void read_game_step()
 void increment_game_step ()
 {
   game_step = game_step + 1;
+  activate_game_step();
+}
+
+void activate_game_step()
+{
   if (game_step > 0){
     play_buzzer(BUZZER_SUCCESS);
   }
@@ -619,19 +626,16 @@ void play_buzzer (int option)
     tone(GPIO_BUZZER, 1000); 
     delay(300);        
     noTone(GPIO_BUZZER);     
-    delay(300);
   }
   else if (option == BUZZER_SUCCESS){
     tone(GPIO_BUZZER, 3000); 
     delay(800);        
     noTone(GPIO_BUZZER);     
-    delay(300);
   }
   else if (option == BUZZER_ERROR){
     tone(GPIO_BUZZER, 200); 
     delay(300);        
     noTone(GPIO_BUZZER);     
-    delay(300);
   }
    
 }
@@ -745,7 +749,7 @@ bool check_password(String password)
   }
   // Key command
   else{
-    if (password_val == RESET_RECORDING_TIME){
+    if (password_val == CMD_RESET_RECORDING_TIME){
       //EEPROM reset recording time
       EEPROM.write(0,0);
       EEPROM.write(1,0);
@@ -753,13 +757,43 @@ bool check_password(String password)
       EEPROM.write(3,0);
       play_buzzer(BUZZER_SUCCESS);
       password_val = "";
+      return true;
     }
     else if (password_val == CMD_GOTO_2){
-      game_step = 2;
-      write_game_step();
-      play_buzzer(BUZZER_SUCCESS);
-      play_game_step_leds();
+      game_step = 1;
+      activate_game_step();
       password_val = "";
+      return true;
+    }
+    else if (password_val == CMD_GOTO_3){
+      game_step = 2;
+      activate_game_step();
+      password_val = "";
+      return true;
+    }
+    else if (password_val == CMD_GOTO_4){
+      game_step = 3;
+      activate_game_step();
+      password_val = "";
+      return true;
+    }
+    else if (password_val == CMD_GOTO_5){
+      game_step = 4;
+      activate_game_step();
+      password_val = "";
+      return true;
+    }
+    else if (password_val == CMD_GOTO_6){
+      game_step = 5;
+      activate_game_step();
+      password_val = "";
+      return true;
+    }
+    else if (password_val == CMD_GOTO_7){
+      game_step = 6;
+      activate_game_step();
+      password_val = "";
+      return true;
     }
   }
   return false;
