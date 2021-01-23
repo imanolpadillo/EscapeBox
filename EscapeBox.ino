@@ -47,6 +47,8 @@
 #define CMD_GOTO_5                        "A465887"
 #define CMD_GOTO_6                        "A954644"
 #define CMD_GOTO_7                        "A087668"
+#define CMD_GOTO_8                        "A102427"
+#define CMD_GOTO_END                      "A886754"
 // GAME STEP 1: keyboard
 #define GS1_PASSWORD                      "1234"
 // GAME STEP 2: rfid
@@ -76,6 +78,17 @@ const double GPS_TARGET_LONGITUDE =         -2.66903;
 #define GPIO_BUZZER                       38
 #define GPIO_TIMER_CLK                    48
 #define GPIO_TIMER_DIO                    49
+// GAME STEP LEDS
+#define GPIO_LED_1                        62
+#define GPIO_LED_2                        63
+#define GPIO_LED_3                        64
+#define GPIO_LED_4                        65
+#define GPIO_LED_5                        66
+#define GPIO_LED_6                        67
+#define GPIO_LED_7                        68
+#define GPIO_LED_8                        69
+#define GPIO_MOTOR                        57
+#define GPIO_LOCKER                       13
 // GAME STEP 0: wires + leds
 #define GPIO_PULSE                        3
 #define GPIO_LED_R                        22
@@ -330,6 +343,17 @@ void setup() {
   pinMode(GPIO_CLUE, INPUT_PULLUP);  
   attachInterrupt(digitalPinToInterrupt(GPIO_CLUE), activate_flag_playing_clue, FALLING);
   pinMode(GPIO_BUZZER, OUTPUT); 
+  // GAME STEP leds
+  pinMode(GPIO_LED_1, OUTPUT);
+  pinMode(GPIO_LED_2, OUTPUT);
+  pinMode(GPIO_LED_3, OUTPUT);
+  pinMode(GPIO_LED_4, OUTPUT);
+  pinMode(GPIO_LED_5, OUTPUT);
+  pinMode(GPIO_LED_6, OUTPUT);
+  pinMode(GPIO_LED_7, OUTPUT);
+  pinMode(GPIO_LED_8, OUTPUT);
+  pinMode(GPIO_MOTOR, OUTPUT);
+  pinMode(GPIO_LOCKER, OUTPUT);
   // GAME STEP 0: wires + leds
   pinMode(GPIO_LED_R, OUTPUT);  
   pinMode(GPIO_LED_G, OUTPUT);  
@@ -404,11 +428,11 @@ void setup() {
   
   // set game_step
   read_game_step();
-  game_step=7;
+  play_game_step_leds();
 
   // show time
   increment_recording_time(0);
-
+  
 }
 
 // ********************************************************************************************* //
@@ -515,6 +539,7 @@ void loop() {
     }
     if (check_word() == true){
       encoder_val=0;
+      lc.clearDisplay(0);   
       increment_game_step();
     }
   }
@@ -523,22 +548,10 @@ void loop() {
   else if (game_step == 7)
   {
     play_gps_led();
-    /*
-    while (Serial3.available()>0) {
-      int c = Serial3.read();
-      if (gps.encode(c)){
-        if (check_gps() == true){
-            increment_game_step();
-        }
-      }
-    }
-    */
     while (Serial3.available()>0) {
       char c = Serial3.read();
       //Serial.write(c);
       gps.encode(c);
-      //Serial.write(Serial3.read());
-      //gps.encode(Serial3.read());
     }
     //Serial.print("Sentences that failed checksum=");
     //Serial.println(gps.failedChecksum());
@@ -655,7 +668,107 @@ void activate_game_step()
 // Play game step leds
 void play_game_step_leds()
 {
-  Serial2.print(game_step,DEC);
+  //Serial2.print(game_step,DEC);
+ if (game_step==0){
+    digitalWrite(GPIO_LED_1, LOW);
+    digitalWrite(GPIO_LED_2, LOW);
+    digitalWrite(GPIO_LED_3, LOW);
+    digitalWrite(GPIO_LED_4, LOW);
+    digitalWrite(GPIO_LED_5, LOW);
+    digitalWrite(GPIO_LED_6, LOW);
+    digitalWrite(GPIO_LED_7, LOW);
+    digitalWrite(GPIO_LED_8, LOW);
+    digitalWrite(GPIO_MOTOR, LOW);
+    digitalWrite(GPIO_LOCKER, LOW);
+  } else if (game_step==1){
+    digitalWrite(GPIO_LED_1, HIGH);
+    digitalWrite(GPIO_LED_2, LOW);
+    digitalWrite(GPIO_LED_3, LOW);
+    digitalWrite(GPIO_LED_4, LOW);
+    digitalWrite(GPIO_LED_5, LOW);
+    digitalWrite(GPIO_LED_6, LOW);
+    digitalWrite(GPIO_LED_7, LOW);
+    digitalWrite(GPIO_LED_8, LOW);  
+    digitalWrite(GPIO_MOTOR, LOW);
+    digitalWrite(GPIO_LOCKER, LOW);
+  } else if (game_step==2){
+    digitalWrite(GPIO_LED_1, HIGH);
+    digitalWrite(GPIO_LED_2, HIGH);
+    digitalWrite(GPIO_LED_3, LOW);
+    digitalWrite(GPIO_LED_4, LOW);
+    digitalWrite(GPIO_LED_5, LOW);
+    digitalWrite(GPIO_LED_6, LOW);
+    digitalWrite(GPIO_LED_7, LOW);
+    digitalWrite(GPIO_LED_8, LOW); 
+    digitalWrite(GPIO_MOTOR, LOW);
+    digitalWrite(GPIO_LOCKER, LOW);
+  } else if (game_step==3){
+    digitalWrite(GPIO_LED_1, HIGH);
+    digitalWrite(GPIO_LED_2, HIGH);
+    digitalWrite(GPIO_LED_3, HIGH);
+    digitalWrite(GPIO_LED_4, LOW);
+    digitalWrite(GPIO_LED_5, LOW);
+    digitalWrite(GPIO_LED_6, LOW);
+    digitalWrite(GPIO_LED_7, LOW);
+    digitalWrite(GPIO_LED_8, LOW);
+    digitalWrite(GPIO_MOTOR, LOW);
+    digitalWrite(GPIO_LOCKER, LOW);
+  } else if (game_step==4){
+    digitalWrite(GPIO_LED_1, HIGH);
+    digitalWrite(GPIO_LED_2, HIGH);
+    digitalWrite(GPIO_LED_3, HIGH);
+    digitalWrite(GPIO_LED_4, HIGH);
+    digitalWrite(GPIO_LED_5, LOW);
+    digitalWrite(GPIO_LED_6, LOW);
+    digitalWrite(GPIO_LED_7, LOW);
+    digitalWrite(GPIO_LED_8, LOW);
+    digitalWrite(GPIO_MOTOR, LOW);
+    digitalWrite(GPIO_LOCKER, LOW);
+  } else if (game_step==5){
+    digitalWrite(GPIO_LED_1, HIGH);
+    digitalWrite(GPIO_LED_2, HIGH);
+    digitalWrite(GPIO_LED_3, HIGH);
+    digitalWrite(GPIO_LED_4, HIGH);
+    digitalWrite(GPIO_LED_5, HIGH);
+    digitalWrite(GPIO_LED_6, LOW);
+    digitalWrite(GPIO_LED_7, LOW);
+    digitalWrite(GPIO_LED_8, LOW);  
+    digitalWrite(GPIO_MOTOR, LOW);
+    digitalWrite(GPIO_LOCKER, LOW); 
+  } else if (game_step==6){
+    digitalWrite(GPIO_LED_1, HIGH);
+    digitalWrite(GPIO_LED_2, HIGH);
+    digitalWrite(GPIO_LED_3, HIGH);
+    digitalWrite(GPIO_LED_4, HIGH);
+    digitalWrite(GPIO_LED_5, HIGH);
+    digitalWrite(GPIO_LED_6, HIGH);
+    digitalWrite(GPIO_LED_7, LOW);
+    digitalWrite(GPIO_LED_8, LOW);
+    digitalWrite(GPIO_MOTOR, LOW);
+    digitalWrite(GPIO_LOCKER, LOW); 
+  } else if (game_step==7){
+    digitalWrite(GPIO_LED_1, HIGH);
+    digitalWrite(GPIO_LED_2, HIGH);
+    digitalWrite(GPIO_LED_3, HIGH);
+    digitalWrite(GPIO_LED_4, HIGH);
+    digitalWrite(GPIO_LED_5, HIGH);
+    digitalWrite(GPIO_LED_6, HIGH);
+    digitalWrite(GPIO_LED_7, HIGH);
+    digitalWrite(GPIO_LED_8, LOW);
+    digitalWrite(GPIO_MOTOR, LOW);
+    digitalWrite(GPIO_LOCKER, LOW);
+  } else if (game_step==8){
+    digitalWrite(GPIO_LED_1, HIGH);
+    digitalWrite(GPIO_LED_2, HIGH);
+    digitalWrite(GPIO_LED_3, HIGH);
+    digitalWrite(GPIO_LED_4, HIGH);
+    digitalWrite(GPIO_LED_5, HIGH);
+    digitalWrite(GPIO_LED_6, HIGH);
+    digitalWrite(GPIO_LED_7, HIGH);
+    digitalWrite(GPIO_LED_8, HIGH); 
+    digitalWrite(GPIO_MOTOR, LOW);
+    digitalWrite(GPIO_LOCKER, LOW);
+  }
 }
 
 // Play buzzer tone
@@ -837,6 +950,18 @@ bool check_password(String password)
     }
     else if (password_val == CMD_GOTO_7){
       game_step = 6;
+      activate_game_step();
+      password_val = "";
+      return true;
+    }
+    else if (password_val == CMD_GOTO_8){
+      game_step = 7;
+      activate_game_step();
+      password_val = "";
+      return true;
+    }
+    else if (password_val == CMD_GOTO_END){
+      game_step = MAX_STEPS-1;
       activate_game_step();
       password_val = "";
       return true;
