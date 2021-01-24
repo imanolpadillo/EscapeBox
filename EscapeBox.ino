@@ -40,15 +40,23 @@
 // ********************************************************************************************* //
 // KEYPAD COMMANDS
 #define CMD_RESET_RECORDING_TIME          "A311252"
-#define CMD_GOTO_1                        "A000000"
+/*#define CMD_GOTO_1                        "A000000"
 #define CMD_GOTO_2                        "A667750"
 #define CMD_GOTO_3                        "A566777"
 #define CMD_GOTO_4                        "A756778"
 #define CMD_GOTO_5                        "A465887"
 #define CMD_GOTO_6                        "A954644"
 #define CMD_GOTO_7                        "A087668"
-#define CMD_GOTO_8                        "A102427"
-#define CMD_GOTO_END                      "A886754"
+#define CMD_GOTO_8                        "A102427"*/
+#define CMD_GOTO_1                        "A111111"
+#define CMD_GOTO_2                        "A222222"
+#define CMD_GOTO_3                        "A333333"
+#define CMD_GOTO_4                        "A444444"
+#define CMD_GOTO_5                        "A555555"
+#define CMD_GOTO_6                        "A666666"
+#define CMD_GOTO_7                        "A777777"
+#define CMD_GOTO_8                        "A888888"
+#define CMD_GOTO_END                      "A999999"
 // GAME STEP 1: keyboard
 #define GS1_PASSWORD                      "1234"
 // GAME STEP 2: rfid
@@ -361,7 +369,7 @@ void setup() {
   pinMode(GPIO_LED_W, OUTPUT);  
   pinMode(GPIO_PULSE, INPUT_PULLUP);  
   attachInterrupt(digitalPinToInterrupt(GPIO_PULSE), activate_flag_playing_leds, FALLING);
-  pinMode(GPIO_WIRE_INPUT, INPUT);
+  pinMode(GPIO_WIRE_INPUT, INPUT_PULLUP);
   // GAME STEP 1: keyboard
   pinMode(GPIO_KP_R1, INPUT);
   pinMode(GPIO_KP_R2, INPUT);
@@ -466,7 +474,7 @@ void loop() {
   // GAME_STEP 0
   if (game_step == 0)
   {
-    if (digitalRead(GPIO_WIRE_INPUT) == HIGH){
+    if (digitalRead(GPIO_WIRE_INPUT) == LOW){
       increment_game_step();
     }
     else if (flag_playing_leds == true){
