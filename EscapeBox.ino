@@ -46,8 +46,10 @@
 #define CMD_GOTO_4                        "A756778"
 #define CMD_GOTO_5                        "A465887"
 #define CMD_GOTO_6                        "A954644"
-#define CMD_GOTO_7                        "A087668"
-#define CMD_GOTO_8                        "A102427"*/
+#define CMD_GOTO_7                        "A173499"
+#define CMD_GOTO_8                        "A249433"
+#define CMD_GOTO_9                        "A445346"
+#define CMD_GOTO_END                      "A592288"*/
 #define CMD_GOTO_1                        "A111111"
 #define CMD_GOTO_2                        "A222222"
 #define CMD_GOTO_3                        "A333333"
@@ -56,7 +58,8 @@
 #define CMD_GOTO_6                        "A666666"
 #define CMD_GOTO_7                        "A777777"
 #define CMD_GOTO_8                        "A888888"
-#define CMD_GOTO_END                      "A999999"
+#define CMD_GOTO_9                        "A999999"
+#define CMD_GOTO_END                      "AAAAAAA"
 // GAME STEP 1: keyboard
 #define GS1_PASSWORD                      "1234"
 // GAME STEP 2: rfid
@@ -87,16 +90,17 @@ const double GPS_TARGET_LONGITUDE =         -2.66903;
 #define GPIO_TIMER_CLK                    48
 #define GPIO_TIMER_DIO                    49
 // GAME STEP LEDS
-#define GPIO_LED_1                        62
-#define GPIO_LED_2                        63
-#define GPIO_LED_3                        64
-#define GPIO_LED_4                        65
-#define GPIO_LED_5                        66
-#define GPIO_LED_6                        67
-#define GPIO_LED_7                        68
-#define GPIO_LED_8                        69
-#define GPIO_MOTOR                        57
-#define GPIO_LOCKER                       13
+#define GPIO_LED_1                        61
+#define GPIO_LED_2                        62
+#define GPIO_LED_3                        63
+#define GPIO_LED_4                        64
+#define GPIO_LED_5                        65
+#define GPIO_LED_6                        66
+#define GPIO_LED_7                        67
+#define GPIO_LED_8                        68
+#define GPIO_LED_9                        69
+#define GPIO_MOTOR                        16
+#define GPIO_LOCKER                       17
 // GAME STEP 0: wires + leds
 #define GPIO_PULSE                        3
 #define GPIO_LED_R                        22
@@ -143,7 +147,9 @@ const double GPS_TARGET_LONGITUDE =         -2.66903;
 #define GPIO_DISPLAY_DIN                  42
 #define GPIO_DISPLAY_CS                   44
 #define GPIO_DISPLAY_CLK                  46
-// GAME STEP 7: gps
+// GAME STEP 7: switches
+#define GPIO_SWITCHES_INPUT               13
+// GAME STEP 8: gps
 #define GPIO_GPS_TX                       14
 #define GPIO_GPS_RX                       15
 #define GPIO_GPS_LED                      56  //43
@@ -151,7 +157,7 @@ const double GPS_TARGET_LONGITUDE =         -2.66903;
 // ********************************************************************************************* //
 // CONSTANTS
 // ********************************************************************************************* //
-#define MAX_STEPS                         9
+#define MAX_STEPS                         10
 #define MAX_CLUES                         3
 #define RECORDING_MS                      60000
 // lcd
@@ -243,7 +249,8 @@ const String MSG_GAMESTEP[MAX_STEPS][LCD_ROWS] = {
   {"Prueba 5        ", "joystick        "},
   {"Prueba 6        ", "dates           "},
   {"Prueba 7        ", "dignity         "},
-  {"Prueba 8        ", "Prueba8 - Descripcion"},
+  {"Prueba 8        ", "switches        "},
+  {"Prueba 9        ", "gps             "},
   {"Felicidades!", "Tiempo: " + String(EEPROM.read(0)*1000 + EEPROM.read(1)*100 + EEPROM.read(2)*10 + 
       EEPROM.read(3)) + " min"}
 };
@@ -256,7 +263,8 @@ const String MSG_CLUE_1[MAX_STEPS][MAX_CLUES] = {
   {"Prueba6 - Pista1", "Prueba6 - Pista2", "Prueba6 - Pista3"},
   {"Prueba7 - Pista1", "Prueba7 - Pista2", "Prueba7 - Pista3"},
   {"Prueba8 - Pista1", "Prueba8 - Pista2", "Prueba8 - Pista3"},
-  {"Prueba9 - Pista1", "Prueba9 - Pista2", "Prueba9 - Pista3"}
+  {"Prueba9 - Pista1", "Prueba9 - Pista2", "Prueba9 - Pista3"},
+  {"Prueba10 - Pista1", "Prueba10 - Pista2", "Prueba10 - Pista3"}
 };
 const String MSG_CLUE_2[MAX_STEPS][MAX_CLUES] = {
   {"Prueba1 - Pista1", "Prueba1 - Pista2", "Prueba1 - Pista3"},
@@ -267,7 +275,8 @@ const String MSG_CLUE_2[MAX_STEPS][MAX_CLUES] = {
   {"Prueba6 - Pista1", "Prueba6 - Pista2", "Prueba6 - Pista3"},
   {"Prueba7 - Pista1", "Prueba7 - Pista2", "Prueba7 - Pista3"},
   {"Prueba8 - Pista1", "Prueba8 - Pista2", "Prueba8 - Pista3"},
-  {"Prueba9 - Pista1", "Prueba9 - Pista2", "Prueba9 - Pista3"}
+  {"Prueba9 - Pista1", "Prueba9 - Pista2", "Prueba9 - Pista3"},
+  {"Prueba10 - Pista1", "Prueba10 - Pista2", "Prueba10 - Pista3"}
 };
 // ********************************************************************************************* //
 // VARIABLES
@@ -392,14 +401,16 @@ void setup() {
   pinMode(GPIO_ENC_SW, INPUT);
   digitalWrite(GPIO_ENC_SW, HIGH);
   pinMode(GPIO_PLAY_SONG, INPUT);
-  // GAME STEP 7: gps
+  // GAME STEP 7: switches
+  pinMode(GPIO_SWITCHES_INPUT, INPUT_PULLUP);
+  // GAME STEP 8: gps
   pinMode(GPIO_GPS_LED, OUTPUT);
   
   // Setup serial comm
   Serial.begin(9600);  
 
   // Setup Uno serial comm
-  Serial2.begin(9600);
+  //Serial2.begin(9600);
 
   // Setup gps serial comm
   Serial3.begin(9600);
@@ -553,6 +564,14 @@ void loop() {
   }
 
   // GAME_STEP_7
+  else if (game_step == 7)
+  {
+    if (digitalRead(GPIO_WIRE_INPUT) == LOW){
+      increment_game_step();
+    }
+  }
+
+  // GAME_STEP_8
   else if (game_step == 7)
   {
     play_gps_led();
@@ -964,6 +983,12 @@ bool check_password(String password)
     }
     else if (password_val == CMD_GOTO_8){
       game_step = 7;
+      activate_game_step();
+      password_val = "";
+      return true;
+    }
+    else if (password_val == CMD_GOTO_9){
+      game_step = 8;
       activate_game_step();
       password_val = "";
       return true;
