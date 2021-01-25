@@ -148,7 +148,7 @@ const double GPS_TARGET_LONGITUDE =         -2.66903;
 #define GPIO_DISPLAY_CS                   44
 #define GPIO_DISPLAY_CLK                  46
 // GAME STEP 7: switches
-#define GPIO_SWITCHES_INPUT               13
+#define GPIO_SWITCHES_INPUT               12
 // GAME STEP 8: gps
 #define GPIO_GPS_TX                       14
 #define GPIO_GPS_RX                       15
@@ -559,6 +559,8 @@ void loop() {
     if (check_word() == true){
       encoder_val=0;
       lc.clearDisplay(0);   
+      matrix.fillScreen(0);
+      matrix.write();
       increment_game_step();
     }
   }
@@ -566,13 +568,13 @@ void loop() {
   // GAME_STEP_7
   else if (game_step == 7)
   {
-    if (digitalRead(GPIO_WIRE_INPUT) == LOW){
+    if (digitalRead(GPIO_SWITCHES_INPUT) == LOW){
       increment_game_step();
     }
   }
 
   // GAME_STEP_8
-  else if (game_step == 7)
+  else if (game_step == 8)
   {
     play_gps_led();
     while (Serial3.available()>0) {
