@@ -60,8 +60,11 @@
 #define CMD_GOTO_8                        "A888888"
 #define CMD_GOTO_9                        "A999999"
 #define CMD_GOTO_END                      "AAAAAAA"
-// GAME STEP 1: keyboard
-#define GS1_PASSWORD                      "1234"
+// GAME STEP 1: simon
+#define SIMON_SEQUENCE_0                  "1122"
+#define SIMON_SEQUENCE_1                  "111222"
+#define SIMON_SEQUENCE_2                  "321330120"
+#define SIMON_SEQUENCE_3                  "0223102123"
 // GAME STEP 2: rfid
 #define RFID_WHITE                        "3221477164"
 #define RFID_BLUE                         "575574115"
@@ -324,10 +327,15 @@ bool flag_playing_clue = false;
 //game_step 0
 bool flag_playing_leds = false;
 //game_step 1
-String password_val;
+int simon_step = 0;
+bool simon_played = false;
+String simon_input = "";
+String simon_sequence;
+int simon_last_led_actived = -1;
 //game_step 2
 MFRC522 mfrc522(GPIO_RFID_SDA, GPIO_RFID_RST); 
 //game_step 3
+String password_val;
 Max72xxPanel matrix = Max72xxPanel(GPIO_LMATRIX_CS, LMATRIX_H_DISPLAYS, LMATRIX_V_DISPLAYS);
 int lmatrix_index = 0;
 //game_step 3
@@ -514,19 +522,35 @@ void loop() {
   // GAME_STEP_1
   else if (game_step == 1)
   {
-    
-    
-    /*digitalWrite(GPIO_SIMON_R_L,HIGH);
-    Serial.print(digitalRead(GPIO_SIMON_R_P));
-    digitalWrite(GPIO_SIMON_G_L,HIGH);
-    Serial.print(digitalRead(GPIO_SIMON_G_P));
-    digitalWrite(GPIO_SIMON_B_L,HIGH);
-    Serial.print(digitalRead(GPIO_SIMON_B_P));
-    digitalWrite(GPIO_SIMON_Y_L,HIGH);
-    Serial.println(digitalRead(GPIO_SIMON_Y_P));*/
-    
-    if (customKey == '#'){
-      if (check_password(GS1_PASSWORD) == true){
+    if (simon_played == false){
+      if (simon_step == 0){
+        simon_sequence = SIMON_SEQUENCE_0;
+        play_simon(300,300);
+        simon_played = true;
+      }
+      else if (simon_step == 1){
+        simon_sequence = SIMON_SEQUENCE_1;
+        play_simon(150,150);
+        simon_played = true;
+      }
+      else if (simon_step == 2){
+        simon_sequence = SIMON_SEQUENCE_2;
+        play_simon(300,300);
+        simon_played = true;
+      }
+      else if (simon_step == 3){
+        simon_sequence = SIMON_SEQUENCE_3;
+        play_simon(300,300);
+        simon_played = true;
+      }
+    }
+    else{
+      if(check_simon()==true){
+          simon_step = simon_step + 1;
+          simon_played = false;
+          delay(1000);
+      }
+      if (simon_step == 4){
         increment_game_step();
       }
     }
@@ -1111,6 +1135,115 @@ void play_leds ()
 // GAME STEP 1
 // ********************************************************************************************* //
 
+// play simon sequence
+void play_simon(int led_on_ms,int led_off_ms) {
+  for (int i=0;i<simon_sequence.length(); i++){
+    int led_gpio;
+    if (simon_sequence[i] == '0'){
+      led_gpio = GPIO_SIMON_R_L;
+    }
+    else if (simon_sequence[i] == '1'){
+      led_gpio = GPIO_SIMON_G_L;
+    }
+    else if (simon_sequence[i] == '2'){
+      led_gpio = GPIO_SIMON_B_L;
+    }
+    else {
+      led_gpio = GPIO_SIMON_Y_L;
+    }
+    digitalWrite(led_gpio,HIGH);
+    delay(led_on_ms);
+    digitalWrite(led_gpio,LOW);
+    delay(led_off_ms);
+  }
+}
+
+bool check_simon()
+{
+  if (simon_sequence == simon_input){
+    play_buzzer(BUZZER_SUCCESS);
+    simon_input = "";
+    return true;
+  }
+  else{
+    if (digitalRead(GPIO_SIMON_R_P)==HIGH and simon_last_led_actived == -1)
+    {
+      simon_input = simon_input + '0'; 
+      simon_last_led_actived = 0; //R
+      if (simon_sequence[simon_input.length()-1] == simon_input[simon_input.length()-1]){
+        digitalWrite(GPIO_SIMON_R_L,HIGH);
+        delay(200);
+        digitalWrite(GPIO_SIMON_R_L,LOW);
+        play_buzzer(BUZZER_KEY);
+      }
+      else{
+        play_buzzer(BUZZER_ERROR);
+        simon_input = "";
+        simon_played = false;
+        delay(1000);
+      }
+    }
+
+    if (digitalRead(GPIO_SIMON_G_P)==HIGH and simon_last_led_actived == -1)
+    {
+      simon_input = simon_input + '1'; 
+      simon_last_led_actived = 1; //G
+      if (simon_sequence[simon_input.length()-1] == simon_input[simon_input.length()-1]){
+        digitalWrite(GPIO_SIMON_G_L,HIGH);
+        delay(200);
+        digitalWrite(GPIO_SIMON_G_L,LOW);
+        play_buzzer(BUZZER_KEY);
+      }
+      else{
+        play_buzzer(BUZZER_ERROR);
+        simon_input = "";
+        simon_played = false;
+        delay(1000);
+      }
+    }
+
+    if (digitalRead(GPIO_SIMON_B_P)==HIGH and simon_last_led_actived == -1)
+    {
+      simon_input = simon_input + '2'; 
+      simon_last_led_actived = 2; //B
+      if (simon_sequence[simon_input.length()-1] == simon_input[simon_input.length()-1]){
+        digitalWrite(GPIO_SIMON_B_L,HIGH);
+        delay(200);
+        digitalWrite(GPIO_SIMON_B_L,LOW);
+        play_buzzer(BUZZER_KEY);
+      }
+      else{
+        play_buzzer(BUZZER_ERROR);
+        simon_input = "";
+        simon_played = false;
+        delay(1000);
+      }
+    }
+
+    if (digitalRead(GPIO_SIMON_Y_P)==HIGH and simon_last_led_actived == -1)
+    {
+      simon_input = simon_input + '3'; 
+      simon_last_led_actived = 3; //Y
+      if (simon_sequence[simon_input.length()-1] == simon_input[simon_input.length()-1]){
+        digitalWrite(GPIO_SIMON_Y_L,HIGH);
+        delay(200);
+        digitalWrite(GPIO_SIMON_Y_L,LOW);
+        play_buzzer(BUZZER_KEY);
+      }
+      else{
+        play_buzzer(BUZZER_ERROR);
+        simon_input = "";
+        simon_played = false;
+        delay(1000);
+      }
+    }
+    
+    else{
+      simon_last_led_actived = -1;
+    }
+  }
+  return false;
+}
 
 // ********************************************************************************************* //
 // GAME STEP 2
