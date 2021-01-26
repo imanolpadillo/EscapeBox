@@ -108,7 +108,22 @@ const double GPS_TARGET_LONGITUDE =         -2.66903;
 #define GPIO_LED_B                        26
 #define GPIO_LED_W                        28
 #define GPIO_WIRE_INPUT                   30
-// GAME STEP 1: keyboard
+// GAME STEP 1: simon
+#define GPIO_SIMON_G_L                    8
+#define GPIO_SIMON_G_P                    9
+#define GPIO_SIMON_B_L                    10
+#define GPIO_SIMON_B_P                    11
+#define GPIO_SIMON_Y_L                    57
+#define GPIO_SIMON_Y_P                    58
+#define GPIO_SIMON_R_L                    59
+#define GPIO_SIMON_R_P                    60
+// GAME STEP 2: rfid
+#define GPIO_RFID_RST                     34
+#define GPIO_RFID_SDA                     36
+//#define GPIO_RFID_SCK                   52  
+//#define GPIO_RFID_MOSI                  51 
+//#define GPIO_RFID_MISO                  50
+// GAME STEP 3: led matrix
 #define GPIO_KP_C1                        23
 #define GPIO_KP_C2                        25
 #define GPIO_KP_C3                        27
@@ -117,13 +132,6 @@ const double GPS_TARGET_LONGITUDE =         -2.66903;
 #define GPIO_KP_R2                        33
 #define GPIO_KP_R3                        35
 #define GPIO_KP_R4                        37
-// GAME STEP 2: rfid
-#define GPIO_RFID_RST                     34
-#define GPIO_RFID_SDA                     36
-//#define GPIO_RFID_SCK                   52  
-//#define GPIO_RFID_MOSI                  51 
-//#define GPIO_RFID_MISO                  50
-// GAME STEP 3: led matrix
 #define GPIO_LMATRIX_CS                   53  // SS    
 //#define GPIO_LMATRIX_CLK                52  // SCK
 //#define GPIO_LMATRIX_DIN                51  // MOSI 
@@ -150,9 +158,10 @@ const double GPS_TARGET_LONGITUDE =         -2.66903;
 // GAME STEP 7: switches
 #define GPIO_SWITCHES_INPUT               12
 // GAME STEP 8: gps
+#define GPIO_MICROPHONE                   A2
 #define GPIO_GPS_TX                       14
 #define GPIO_GPS_RX                       15
-#define GPIO_GPS_LED                      56  //43
+#define GPIO_GPS_LED                      43
 
 // ********************************************************************************************* //
 // CONSTANTS
@@ -185,6 +194,8 @@ const double GPS_TARGET_LONGITUDE =         -2.66903;
 // gps
 #define GPS_LED_TIMEOUT                   500
 #define GPS_TARGET_DISTANCE               500  //meters
+// microphone
+#define MICROPHONE_LEVEL                  900
 // buzzer
 int melody_0[] = {
   NOTE_E5, 4,  NOTE_B4,8,  NOTE_C5,8,  NOTE_D5,4,  NOTE_C5,8,  NOTE_B4,8,
@@ -243,7 +254,7 @@ String LMATRIX_TAPE = "www.escapebox.com";
 
 const String MSG_GAMESTEP[MAX_STEPS][LCD_ROWS] = {
   {"Prueba 1        ", "Cables y leds   "},
-  {"Prueba 2        ", "keypad          "},
+  {"Prueba 2        ", "Simon           "},
   {"Prueba 3        ", "rfid            "},
   {"Prueba 4        ", "led matrix      "},
   {"Prueba 5        ", "joystick        "},
@@ -379,7 +390,17 @@ void setup() {
   pinMode(GPIO_PULSE, INPUT_PULLUP);  
   attachInterrupt(digitalPinToInterrupt(GPIO_PULSE), activate_flag_playing_leds, FALLING);
   pinMode(GPIO_WIRE_INPUT, INPUT_PULLUP);
-  // GAME STEP 1: keyboard
+  // GAME STEP 1: simon
+  pinMode(GPIO_SIMON_G_L, OUTPUT);
+  pinMode(GPIO_SIMON_G_P, INPUT);
+  pinMode(GPIO_SIMON_B_L, OUTPUT);
+  pinMode(GPIO_SIMON_B_P, INPUT);
+  pinMode(GPIO_SIMON_Y_L, OUTPUT);
+  pinMode(GPIO_SIMON_Y_P, INPUT);
+  pinMode(GPIO_SIMON_R_L, OUTPUT);
+  pinMode(GPIO_SIMON_R_P, INPUT);
+  // GAME STEP 2: rfid
+  // GAME STEP 3: led matrix
   pinMode(GPIO_KP_R1, INPUT);
   pinMode(GPIO_KP_R2, INPUT);
   pinMode(GPIO_KP_R3, INPUT);
@@ -388,8 +409,6 @@ void setup() {
   pinMode(GPIO_KP_C2, INPUT);
   pinMode(GPIO_KP_C3, INPUT);
   pinMode(GPIO_KP_C4, INPUT);
-  // GAME STEP 2: rfid
-  // GAME STEP 3: led matrix
   // GAME STEP 4: joystick 
   pinMode(GPIO_JOY_X, INPUT);
   pinMode(GPIO_JOY_Y, INPUT);
@@ -495,6 +514,17 @@ void loop() {
   // GAME_STEP_1
   else if (game_step == 1)
   {
+    
+    
+    /*digitalWrite(GPIO_SIMON_R_L,HIGH);
+    Serial.print(digitalRead(GPIO_SIMON_R_P));
+    digitalWrite(GPIO_SIMON_G_L,HIGH);
+    Serial.print(digitalRead(GPIO_SIMON_G_P));
+    digitalWrite(GPIO_SIMON_B_L,HIGH);
+    Serial.print(digitalRead(GPIO_SIMON_B_P));
+    digitalWrite(GPIO_SIMON_Y_L,HIGH);
+    Serial.println(digitalRead(GPIO_SIMON_Y_P));*/
+    
     if (customKey == '#'){
       if (check_password(GS1_PASSWORD) == true){
         increment_game_step();
@@ -586,6 +616,10 @@ void loop() {
     //Serial.println(gps.failedChecksum());
     
     if (check_gps() == true){
+      gps_in_target = true;
+    }
+
+    if (gps_in_target = true and analogRead(GPIO_MICROPHONE)>MICROPHONE_LEVEL){
       increment_game_step();
     }
   }
