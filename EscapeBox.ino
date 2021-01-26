@@ -1671,8 +1671,8 @@ bool check_gps()
   if (int(latitude) != 0 and int(longitude) != 0){
     double distance = TinyGPSPlus::distanceBetween(
       GPS_TARGET_LATITUDE, GPS_TARGET_LONGITUDE, latitude, longitude);
-    Serial.print("Distance to target:");
-    Serial.println(distance);
+    //Serial.print("Distance to target:");
+    //Serial.println(distance);
     if (distance < GPS_TARGET_DISTANCE){
       digitalWrite(GPIO_GPS_LED, LOW);
       return true;
