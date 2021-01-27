@@ -61,10 +61,10 @@
 #define CMD_GOTO_9                        "A999999"
 #define CMD_GOTO_END                      "AAAAAAA"
 // GAME STEP 1: simon
-#define SIMON_SEQUENCE_0                  "1122"
-#define SIMON_SEQUENCE_1                  "111222"
-#define SIMON_SEQUENCE_2                  "321330120"
-#define SIMON_SEQUENCE_3                  "0223102123"
+#define SIMON_SEQUENCE_0                  "GGBB"
+#define SIMON_SEQUENCE_1                  "GGGBBB"
+#define SIMON_SEQUENCE_2                  "GGGBBB"
+#define SIMON_SEQUENCE_3                  "GGGBBB"
 // GAME STEP 2: rfid
 #define RFID_WHITE                        "3221477164"
 #define RFID_BLUE                         "575574115"
@@ -331,16 +331,17 @@ int simon_step = 0;
 bool simon_played = false;
 String simon_input = "";
 String simon_sequence;
-int simon_last_led_actived = -1;
+char simon_last_led_actived = '\0';
 //game_step 2
 MFRC522 mfrc522(GPIO_RFID_SDA, GPIO_RFID_RST); 
 //game_step 3
 String password_val;
 Max72xxPanel matrix = Max72xxPanel(GPIO_LMATRIX_CS, LMATRIX_H_DISPLAYS, LMATRIX_V_DISPLAYS);
 int lmatrix_index = 0;
-//game_step 3
-char joy_last_state = ' ';
 //game_step 4
+char joy_last_state = ' ';
+String joy_val="";
+//game_step 5
 const int timeThreshold = 5;
 long timeCounter = 0;
 int encoder_val = ENCODER_MIN_VAL_GS5;
@@ -507,7 +508,11 @@ void loop() {
       customKey = '\0';
     }
   }
-  
+
+  int aaa=analogRead(GPIO_MICROPHONE);
+  if (aaa>500){
+    Serial.println(aaa);
+  }
   
   // GAME_STEP 0
   if (game_step == 0)
@@ -535,12 +540,12 @@ void loop() {
       }
       else if (simon_step == 2){
         simon_sequence = SIMON_SEQUENCE_2;
-        play_simon(300,300);
+        play_simon(120,120);
         simon_played = true;
       }
       else if (simon_step == 3){
         simon_sequence = SIMON_SEQUENCE_3;
-        play_simon(300,300);
+        play_simon(100,100);
         simon_played = true;
       }
     }
@@ -630,21 +635,24 @@ void loop() {
   // GAME_STEP_8
   else if (game_step == 8)
   {
-    play_gps_led();
-    while (Serial3.available()>0) {
-      char c = Serial3.read();
-      //Serial.write(c);
-      gps.encode(c);
-    }
-    //Serial.print("Sentences that failed checksum=");
-    //Serial.println(gps.failedChecksum());
-    
-    if (check_gps() == true){
-      gps_in_target = true;
+    if(gps_in_target == false){
+      play_gps_led();
+      while (Serial3.available()>0) {
+        char c = Serial3.read();
+        //Serial.write(c);
+        gps.encode(c);
+      }
+      //Serial.print("Sentences that failed checksum=");
+      //Serial.println(gps.failedChecksum());
+
+      if (check_gps() == true){
+        gps_in_target = true;
+      }
     }
 
-    if (gps_in_target = true and analogRead(GPIO_MICROPHONE)>MICROPHONE_LEVEL){
-      increment_game_step();
+    if (gps_in_target == true and analogRead(GPIO_MICROPHONE)>MICROPHONE_LEVEL){
+      //increment_game_step();
+      Serial.println("End");
     }
   }
 
@@ -1063,6 +1071,49 @@ bool check_password(String password)
   return false;
 }
 
+// Reset all outputs
+void reset_outputs()
+{
+  password_val = "";
+  // GAME STEP 0 - WIRES
+  // GAME STEP 1 - SIMON
+  simon_input = "";
+  digitalWrite(GPIO_SIMON_R_L,LOW);
+  digitalWrite(GPIO_SIMON_G_L,LOW);
+  digitalWrite(GPIO_SIMON_B_L,LOW);
+  digitalWrite(GPIO_SIMON_Y_L,LOW);
+  // GAME STEP 2 - RFID
+  // GAME STEP 3 - LED MATRIX
+  matrix.fillScreen(0);
+  matrix.write();
+  // GAME STEP 4 - JOYSTICK
+  joy_val = "";
+  // GAME STEP 5 - DATES
+  display_val = "";
+  date1.clearDisplay();
+  date2.display(0,int8_t({0x0}));
+  date2.display(1,int8_t({0x0}));
+  date2.display(2,int8_t({0x0}));
+  date2.display(3,int8_t({0x0}));
+  date3.display(0,int8_t({0x0}));
+  date3.display(1,int8_t({0x0}));
+  date3.display(2,int8_t({0x0}));
+  date3.display(3,int8_t({0x0}));
+  date4.display(0,int8_t({0x0}));
+  date4.display(1,int8_t({0x0}));
+  date4.display(2,int8_t({0x0}));
+  date4.display(3,int8_t({0x0}));
+  // GAME STEP 6 - DIGNITY
+  //display_val = "";
+  //matrix.fillScreen(0);
+  //matrix.write();
+  lc.clearDisplay(0); 
+  // GAME STEP 7 - SWITCHES
+  // GAME STEP 8 - GPS
+  gps_in_target = false;
+  digitalWrite(GPIO_GPS_LED,LOW);
+}
+
 // ********************************************************************************************* //
 // GAME STEP 0
 // ********************************************************************************************* //
@@ -1139,13 +1190,13 @@ void play_leds ()
 void play_simon(int led_on_ms,int led_off_ms) {
   for (int i=0;i<simon_sequence.length(); i++){
     int led_gpio;
-    if (simon_sequence[i] == '0'){
+    if (simon_sequence[i] == 'R'){
       led_gpio = GPIO_SIMON_R_L;
     }
-    else if (simon_sequence[i] == '1'){
+    else if (simon_sequence[i] == 'G'){
       led_gpio = GPIO_SIMON_G_L;
     }
-    else if (simon_sequence[i] == '2'){
+    else if (simon_sequence[i] == 'B'){
       led_gpio = GPIO_SIMON_B_L;
     }
     else {
@@ -1166,10 +1217,10 @@ bool check_simon()
     return true;
   }
   else{
-    if (digitalRead(GPIO_SIMON_R_P)==HIGH and simon_last_led_actived == -1)
+    if (digitalRead(GPIO_SIMON_R_P)==HIGH and simon_last_led_actived == '\0')
     {
-      simon_input = simon_input + '0'; 
-      simon_last_led_actived = 0; //R
+      simon_input = simon_input + 'R'; 
+      simon_last_led_actived = 'R'; //R
       if (simon_sequence[simon_input.length()-1] == simon_input[simon_input.length()-1]){
         digitalWrite(GPIO_SIMON_R_L,HIGH);
         delay(200);
@@ -1184,10 +1235,10 @@ bool check_simon()
       }
     }
 
-    if (digitalRead(GPIO_SIMON_G_P)==HIGH and simon_last_led_actived == -1)
+    if (digitalRead(GPIO_SIMON_G_P)==HIGH and simon_last_led_actived == '\0')
     {
-      simon_input = simon_input + '1'; 
-      simon_last_led_actived = 1; //G
+      simon_input = simon_input + 'G'; 
+      simon_last_led_actived = 'G'; //G
       if (simon_sequence[simon_input.length()-1] == simon_input[simon_input.length()-1]){
         digitalWrite(GPIO_SIMON_G_L,HIGH);
         delay(200);
@@ -1202,10 +1253,10 @@ bool check_simon()
       }
     }
 
-    if (digitalRead(GPIO_SIMON_B_P)==HIGH and simon_last_led_actived == -1)
+    if (digitalRead(GPIO_SIMON_B_P)==HIGH and simon_last_led_actived == '\0')
     {
-      simon_input = simon_input + '2'; 
-      simon_last_led_actived = 2; //B
+      simon_input = simon_input + 'B'; 
+      simon_last_led_actived = 'B'; //B
       if (simon_sequence[simon_input.length()-1] == simon_input[simon_input.length()-1]){
         digitalWrite(GPIO_SIMON_B_L,HIGH);
         delay(200);
@@ -1220,10 +1271,10 @@ bool check_simon()
       }
     }
 
-    if (digitalRead(GPIO_SIMON_Y_P)==HIGH and simon_last_led_actived == -1)
+    if (digitalRead(GPIO_SIMON_Y_P)==HIGH and simon_last_led_actived == '\0')
     {
-      simon_input = simon_input + '3'; 
-      simon_last_led_actived = 3; //Y
+      simon_input = simon_input + 'Y'; 
+      simon_last_led_actived = 'Y'; //Y
       if (simon_sequence[simon_input.length()-1] == simon_input[simon_input.length()-1]){
         digitalWrite(GPIO_SIMON_Y_L,HIGH);
         delay(200);
@@ -1239,7 +1290,7 @@ bool check_simon()
     }
     
     else{
-      simon_last_led_actived = -1;
+      simon_last_led_actived = '\0';
     }
   }
   return false;
@@ -1338,19 +1389,19 @@ bool check_joystick()
 
   if (joy_last_state == ' ' and joy_current_state != ' '){
     joy_last_state = joy_current_state;
-    password_val = password_val + joy_current_state;
+    joy_val = joy_val + joy_current_state;
     play_buzzer(BUZZER_KEY);
   }
 
-  //Serial.println ("joy_current_state: " + String(joy_current_state) + ", joy_last_state: " + String(joy_last_state) + ", password_val: " + password_val);
+  //Serial.println ("joy_current_state: " + String(joy_current_state) + ", joy_last_state: " + String(joy_last_state) + ", joy_val: " + password_val);
 
-  if (password_val.length() == GS4_PASSWORD.length()){
-    if (password_val != GS4_PASSWORD){
+  if (joy_val.length() == GS4_PASSWORD.length()){
+    if (joy_val != GS4_PASSWORD){
       play_buzzer(BUZZER_ERROR);
-      password_val = "";
+      joy_val = "";
     }
     else{
-      password_val = "";
+      joy_val = "";
       return true;
     }
   }
@@ -1671,10 +1722,10 @@ bool check_gps()
   if (int(latitude) != 0 and int(longitude) != 0){
     double distance = TinyGPSPlus::distanceBetween(
       GPS_TARGET_LATITUDE, GPS_TARGET_LONGITUDE, latitude, longitude);
-    //Serial.print("Distance to target:");
-    //Serial.println(distance);
+    Serial.print("Distance to target:");
+    Serial.println(distance);
     if (distance < GPS_TARGET_DISTANCE){
-      digitalWrite(GPIO_GPS_LED, LOW);
+      digitalWrite(GPIO_GPS_LED, HIGH);
       return true;
     }
   }
