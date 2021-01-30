@@ -1061,67 +1061,59 @@ bool check_password(String password)
       return true;
     }
     else if (password_val == CMD_GOTO_1){
+      reset_outputs();
       game_step = 0;
       activate_game_step();
       password_val = "";
       return true;
     }
     else if (password_val == CMD_GOTO_2){
-      game_step = 1;
-      activate_game_step();
-      password_val = "";
+      exec_goto(1);
       return true;
     }
     else if (password_val == CMD_GOTO_3){
-      game_step = 2;
-      activate_game_step();
-      password_val = "";
+      exec_goto(2);
       return true;
     }
     else if (password_val == CMD_GOTO_4){
-      game_step = 3;
-      activate_game_step();
-      password_val = "";
+      exec_goto(3);
       return true;
     }
     else if (password_val == CMD_GOTO_5){
-      game_step = 4;
-      activate_game_step();
-      password_val = "";
+      exec_goto(4);
       return true;
     }
     else if (password_val == CMD_GOTO_6){
-      game_step = 5;
-      activate_game_step();
-      password_val = "";
+      exec_goto(5);
       return true;
     }
     else if (password_val == CMD_GOTO_7){
-      game_step = 6;
-      activate_game_step();
-      password_val = "";
+      exec_goto(6);
       return true;
     }
     else if (password_val == CMD_GOTO_8){
-      game_step = 7;
-      activate_game_step();
-      password_val = "";
+      exec_goto(7);
       return true;
     }
     else if (password_val == CMD_GOTO_9){
-      game_step = 8;
-      activate_game_step();
-      password_val = "";
+      exec_goto(8);
       return true;
     }
     else if (password_val == CMD_GOTO_END){
-      game_step = MAX_STEPS-1;
-      activate_game_step();
-      password_val = "";
+      exec_goto(MAX_STEPS-1);
       return true;
     }
   }
   return false;
+}
+
+// Execute goto command
+void exec_goto(int game_step_val)
+{
+  reset_outputs();
+  game_step = game_step_val;
+  activate_game_step();
+  password_val = "";
 }
 
 // Reset all outputs
@@ -1144,18 +1136,9 @@ void reset_outputs()
   // GAME STEP 5 - DATES
   display_val = "";
   date1.clearDisplay();
-  date2.display(0,int8_t({0x0}));
-  date2.display(1,int8_t({0x0}));
-  date2.display(2,int8_t({0x0}));
-  date2.display(3,int8_t({0x0}));
-  date3.display(0,int8_t({0x0}));
-  date3.display(1,int8_t({0x0}));
-  date3.display(2,int8_t({0x0}));
-  date3.display(3,int8_t({0x0}));
-  date4.display(0,int8_t({0x0}));
-  date4.display(1,int8_t({0x0}));
-  date4.display(2,int8_t({0x0}));
-  date4.display(3,int8_t({0x0}));
+  date2.clearDisplay();
+  date3.clearDisplay();
+  date4.clearDisplay();
   // GAME STEP 6 - DIGNITY
   //display_val = "";
   //matrix.fillScreen(0);
