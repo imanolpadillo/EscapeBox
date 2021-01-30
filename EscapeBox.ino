@@ -87,11 +87,12 @@ const double GPS_TARGET_LONGITUDE =         -2.66903;
 // ********************************************************************************************* //
 // GPIO
 // ********************************************************************************************* //
-// CLUES
+// GENERAL
 #define GPIO_CLUE                         2
 #define GPIO_BUZZER                       38
 #define GPIO_TIMER_CLK                    48
 #define GPIO_TIMER_DIO                    49
+#define GPIO_EMERGENCY                    17
 // GAME STEP LEDS
 #define GPIO_LED_1                        61
 #define GPIO_LED_2                        62
@@ -103,7 +104,7 @@ const double GPS_TARGET_LONGITUDE =         -2.66903;
 #define GPIO_LED_8                        68
 #define GPIO_LED_9                        69
 #define GPIO_MOTOR                        16
-#define GPIO_LOCKER                       17
+#define GPIO_LOCKER                       13
 // GAME STEP 0: wires + leds
 #define GPIO_PULSE                        3
 #define GPIO_LED_R                        22
@@ -254,6 +255,8 @@ String LMATRIX_TAPE = "www.escapebox.com";
 // Messages                                1234567890123456789012345678901234567890
 #define MSG_INIT_1                        "   ESCAPE BOX   "
 #define MSG_INIT_2                        "  Mai y Mario   "
+#define MSG_EMER_1                        "   EMERGENCIA   "
+#define MSG_EMER_2                        "Juego Reseteado "
 
 const String MSG_GAMESTEP[MAX_STEPS][LCD_ROWS] = {
   {"Prueba 1        ", "Cables y leds   "},
@@ -319,6 +322,7 @@ LedControl lc=LedControl(GPIO_DISPLAY_DIN,GPIO_DISPLAY_CLK,GPIO_DISPLAY_CS,1);
 // display 4-digits
 TM1637 recording_time(GPIO_TIMER_CLK,GPIO_TIMER_DIO);
 // general
+bool flag_emergency = false;
 unsigned long loop_ms = millis();
 unsigned long total_ms;
 int game_step;
@@ -380,6 +384,7 @@ void setup() {
   pinMode(GPIO_CLUE, INPUT_PULLUP);  
   attachInterrupt(digitalPinToInterrupt(GPIO_CLUE), activate_flag_playing_clue, FALLING);
   pinMode(GPIO_BUZZER, OUTPUT); 
+  pinMode(GPIO_EMERGENCY, INPUT_PULLUP); 
   // GAME STEP leds
   pinMode(GPIO_LED_1, OUTPUT);
   pinMode(GPIO_LED_2, OUTPUT);
@@ -487,184 +492,211 @@ void setup() {
 // ********************************************************************************************* //
 void loop() {
 
-  
-  // Clue
-  if (flag_playing_clue == true){
-      play_clue(); 
+  // check emergency
+  if (digitalRead(GPIO_EMERGENCY)==LOW and flag_emergency==false){  
+    // emergency pressed
+    flag_emergency = true;
+    game_step=0;
+    write_game_step();
+    lcd_print(MSG_EMER_1,MSG_EMER_2,0);
+    play_game_step_leds();
+    play_buzzer(BUZZER_ERROR);
+  } 
+  else if (digitalRead(GPIO_EMERGENCY)==HIGH and flag_emergency==true){
+    flag_emergency = false;
   }
 
-  //lcd info
-  lcd_print(MSG_GAMESTEP[game_step][0],MSG_GAMESTEP[game_step][1],0);  
-
-  //read keypad
-  char customKey = customKeypad.getKey();
-  if (isAlphaNumeric(customKey) or isDigit(customKey)
-    or customKey == '*'){
-    play_buzzer(BUZZER_KEY);
-    password_val = password_val + customKey;
-  }
-  else if(customKey == '#'){
-    if (check_password("")==true){
-      customKey = '\0';
-    }
-  }
-
-  int aaa=analogRead(GPIO_MICROPHONE);
-  if (aaa>500){
-    Serial.println(aaa);
-  }
-  
-  // GAME_STEP 0
-  if (game_step == 0)
-  {
-    if (digitalRead(GPIO_WIRE_INPUT) == LOW){
-      increment_game_step();
-    }
-    else if (flag_playing_leds == true){
-      play_leds(); 
-    }
-  }
-  // GAME_STEP_1
-  else if (game_step == 1)
-  {
-    if (simon_played == false){
-      if (simon_step == 0){
-        simon_sequence = SIMON_SEQUENCE_0;
-        play_simon(300,300);
-        simon_played = true;
-      }
-      else if (simon_step == 1){
-        simon_sequence = SIMON_SEQUENCE_1;
-        play_simon(150,150);
-        simon_played = true;
-      }
-      else if (simon_step == 2){
-        simon_sequence = SIMON_SEQUENCE_2;
-        play_simon(120,120);
-        simon_played = true;
-      }
-      else if (simon_step == 3){
-        simon_sequence = SIMON_SEQUENCE_3;
-        play_simon(100,100);
-        simon_played = true;
-      }
-    }
-    else{
-      if(check_simon()==true){
-          simon_step = simon_step + 1;
-          simon_played = false;
-          delay(1000);
-      }
-      if (simon_step == 4){
-        increment_game_step();
-      }
-    }
-  }
-  // GAME_STEP_2
-  else if (game_step == 2)
-  {
-    if (read_rfid() == true){
-        increment_game_step();
-    }
-  }
-  // GAME_STEP_3
-  else if (game_step == 3)
-  {
-    if (lmatrix_index < LMATRIX_WIDTH * LMATRIX_TAPE.length() + matrix.width() - 1 - LMATRIX_SPACER) {
-      delay(100);
-      lmatrix_write(lmatrix_index);
-      lmatrix_index++;
-    }
-    else{
-      lmatrix_index = 0;
-    }
-    // read keypad
-    if (customKey == '#'){
-      if (check_password(GS3_PASSWORD) == true){
-        increment_game_step();
-        // empty led matrix
-        matrix.fillScreen(0);
-        matrix.write();
-      }
-    }
-  }
-  // GAME_STEP_4
-  else if (game_step == 4)
-  {
-    if (check_joystick() == true){
-        increment_game_step();
-    }
-  }
-  // GAME_STEP_5
-  else if (game_step == 5)
-  {
-    encoder_max_val = ENCODER_MAX_VAL_GS5;
-    encoder_min_val = ENCODER_MIN_VAL_GS5;
-    if (check_date() == true){
-       encoder_val=0;
-       increment_game_step();
-    }
-  }
-  // GAME_STEP_6
-  else if (game_step == 6)
-  {
-    if (encoder_max_val != ENCODER_MAX_VAL_GS6){
-      set_digit8_password();
+  // normal loop
+  if (flag_emergency==false){
+    // waste
+    int aaa=analogRead(GPIO_MICROPHONE);
+    if (aaa>500){
+      Serial.println(aaa);
     }
     
-    if (encoder_val>encoder_max_val){
-      encoder_val = encoder_min_val;
+    // Clue
+    if (flag_playing_clue == true){
+        play_clue(); 
     }
-    if (check_word() == true){
-      encoder_val=0;
-      lc.clearDisplay(0);   
-      matrix.fillScreen(0);
-      matrix.write();
-      increment_game_step();
+
+    //lcd info
+    lcd_print(MSG_GAMESTEP[game_step][0],MSG_GAMESTEP[game_step][1],0);  
+ 
+    //read keypad
+    char customKey = customKeypad.getKey();
+    if (isAlphaNumeric(customKey) or isDigit(customKey)
+      or customKey == '*'){
+      play_buzzer(BUZZER_KEY);
+      password_val = password_val + customKey;
     }
-  }
-
-  // GAME_STEP_7
-  else if (game_step == 7)
-  {
-    if (digitalRead(GPIO_SWITCHES_INPUT) == LOW){
-      increment_game_step();
-    }
-  }
-
-  // GAME_STEP_8
-  else if (game_step == 8)
-  {
-    if(gps_in_target == false){
-      play_gps_led();
-      while (Serial3.available()>0) {
-        char c = Serial3.read();
-        //Serial.write(c);
-        gps.encode(c);
-      }
-      //Serial.print("Sentences that failed checksum=");
-      //Serial.println(gps.failedChecksum());
-
-      if (check_gps() == true){
-        gps_in_target = true;
+    else if(customKey == '#'){
+      if (check_password("")==true){
+        customKey = '\0';
       }
     }
-
-    if (gps_in_target == true and analogRead(GPIO_MICROPHONE)>MICROPHONE_LEVEL){
-      increment_game_step();
-      //Serial.println("End");
+    
+    // GAME_STEP 0
+    if (game_step == 0)
+    {
+      if (digitalRead(GPIO_WIRE_INPUT) == LOW){
+        increment_game_step();
+      }
+      else if (flag_playing_leds == true){
+        play_leds(); 
+      }
     }
-  }
+    // GAME_STEP_1
+    else if (game_step == 1)
+    {
+      if (simon_played == false){
+        if (simon_step == 0){
+          simon_sequence = SIMON_SEQUENCE_0;
+          play_simon(300,300);
+          simon_played = true;
+        }
+        else if (simon_step == 1){
+          simon_sequence = SIMON_SEQUENCE_1;
+          play_simon(150,150);
+          simon_played = true;
+        }
+        else if (simon_step == 2){
+          simon_sequence = SIMON_SEQUENCE_2;
+          play_simon(120,120);
+          simon_played = true;
+        }
+        else if (simon_step == 3){
+          simon_sequence = SIMON_SEQUENCE_3;
+          play_simon(100,100);
+          simon_played = true;
+        }
+      }
+      else{
+        if(check_simon()==true){
+            simon_step = simon_step + 1;
+            simon_played = false;
+            delay(1000);
+        }
+        if (simon_step == 4){
+          increment_game_step();
+        }
+      }
+    }
+    // GAME_STEP_2
+    else if (game_step == 2)
+    {
+      if (read_rfid() == true){
+          increment_game_step();
+      }
+    }
+    // GAME_STEP_3
+    else if (game_step == 3)
+    {
+      if (lmatrix_index < LMATRIX_WIDTH * LMATRIX_TAPE.length() + matrix.width() - 1 - LMATRIX_SPACER) {
+        delay(100);
+        lmatrix_write(lmatrix_index);
+        lmatrix_index++;
+      }
+      else{
+        lmatrix_index = 0;
+      }
+      // read keypad
+      if (customKey == '#'){
+        if (check_password(GS3_PASSWORD) == true){
+          increment_game_step();
+          // empty led matrix
+          matrix.fillScreen(0);
+          matrix.write();
+        }
+      }
+    }
+    
+    // GAME_STEP_4
+    else if (game_step == 4)
+    {
+      if (check_joystick() == true){
+          increment_game_step();
+      }
+    }
+    
+    // GAME_STEP_5
+    else if (game_step == 5)
+    {
+      encoder_max_val = ENCODER_MAX_VAL_GS5;
+      encoder_min_val = ENCODER_MIN_VAL_GS5;
+      if (check_date() == true){
+         encoder_val=0;
+         increment_game_step();
+      }
+    }
+    
+    // GAME_STEP_6
+    else if (game_step == 6)
+    {
+      if (encoder_max_val != ENCODER_MAX_VAL_GS6){
+        set_digit8_password();
+      }
+      
+      if (encoder_val>encoder_max_val){
+        encoder_val = encoder_min_val;
+      }
+      if (check_word() == true){
+        encoder_val=0;
+        lc.clearDisplay(0);   
+        matrix.fillScreen(0);
+        matrix.write();
+        increment_game_step();
+      }
+    }
+  
+    // GAME_STEP_7
+    else if (game_step == 7)
+    {
+      if (digitalRead(GPIO_SWITCHES_INPUT) == LOW){
+        increment_game_step();
+      }
+    }
+  
+    // GAME_STEP_8
+    else if (game_step == 8)
+    {
+      if(gps_in_target == false){
+        play_gps_led();
+        while (Serial3.available()>0) {
+          char c = Serial3.read();
+          //Serial.write(c);
+          gps.encode(c);
+        }
+        //Serial.print("Sentences that failed checksum=");
+        //Serial.println(gps.failedChecksum());
+  
+        if (check_gps() == true){
+          gps_in_target = true;
+        }
+      }
+  
+      if (gps_in_target == true and analogRead(GPIO_MICROPHONE)>MICROPHONE_LEVEL){
+        increment_game_step();
+        //Serial.println("End");
+      }
+    }
+  
+    // FINISH
+    else if (game_step == MAX_STEPS-1 and melody_end_flag == false)
+    {
+      MSG_GAMESTEP[MAX_STEPS-1][0] = "Felicidades!";
+      MSG_GAMESTEP[MAX_STEPS-1][1] = "Tiempo: " + String(EEPROM.read(0)*1000 + EEPROM.read(1)*100 + EEPROM.read(2)*10 + 
+        EEPROM.read(3)) + " min";
+      lcd_print(MSG_GAMESTEP[game_step][0],MSG_GAMESTEP[game_step][1],0); 
+      melody.play_melody(melody_end, sizeof(melody_end));
+      melody_end_flag = true;
+    }
 
-  // FINISH
-  else if (game_step == MAX_STEPS-1 and melody_end_flag == false)
-  {
-    MSG_GAMESTEP[MAX_STEPS-1][0] = "Felicidades!";
-    MSG_GAMESTEP[MAX_STEPS-1][1] = "Tiempo: " + String(EEPROM.read(0)*1000 + EEPROM.read(1)*100 + EEPROM.read(2)*10 + 
-      EEPROM.read(3)) + " min";
-    lcd_print(MSG_GAMESTEP[game_step][0],MSG_GAMESTEP[game_step][1],0); 
-    melody.play_melody(melody_end, sizeof(melody_end));
-    melody_end_flag = true;
+    // check error keypad command
+    if (password_val != "" and customKey == '#'){
+      password_val = "";
+      play_buzzer(BUZZER_ERROR);
+    }
+
   }
 
   // Increment recording time
@@ -672,11 +704,6 @@ void loop() {
     increment_recording_time(1);
   }
 
-  // check error keypad command
-  if (password_val != "" and customKey == '#'){
-    password_val = "";
-    play_buzzer(BUZZER_ERROR);
-  }
 
 }
 
