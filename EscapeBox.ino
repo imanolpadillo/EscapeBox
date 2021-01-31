@@ -176,7 +176,7 @@ const double GPS_TARGET_LONGITUDE =         -2.66903;
 // lcd
 #define LCD_ADDRESS                       0x27
 #define LCD_SPEED                         400
-#define LCD_BUFFER                        40
+#define LCD_BUFFER                        48
 #define LCD_COLS                          16
 #define LCD_ROWS                          2
 #define TIMEOUT_SHORT                     2000
@@ -262,7 +262,7 @@ const String MSG_GAMESTEP[MAX_STEPS][LCD_ROWS] = {
   {"Prueba 1        ", "Cables de color "},
   {"Prueba 2        ", "Simon says!     "},
   {"Prueba 3        ", "Mystery card    "},
-  {"Prueba 4        ", "Jerogrífico     "},
+  {"Prueba 4        ", "Jerogrifico     "},
   {"Prueba 5        ", "Volando voy     "},
   {"Prueba 6        ", "Música maestro  "},
   {"Prueba 7        ", "Secret word     "},
@@ -286,14 +286,14 @@ const String MSG_CLUE_1[MAX_STEPS][MAX_CLUES] = {
 const String MSG_CLUE_2[MAX_STEPS][MAX_CLUES] = {
   //1234567890123456789012345678901234567890   1234567890123456789012345678901234567890   1234567890123456789012345678901234567890
   {"Cada cable tiene un color",               "Accionar los leds con un interruptor",    "Cada coordenada os da un simbolo"},
-  {"Se han encendido unas luces en un orden", "Pulsad las luces en el orden",            "Muy rápido?Grabad la secuencia con móvil"},
+  {"Se han encendido unas luces en un orden", "Pulsad las luces en el orden correcto",   "Muy rapido?Grabad la secuencia con movil"},
   {"Hay un mapa que muestra unas X",          "Quiza alguien os tenga que dar un objeto","Usad expresión secreta en coordenada"},
   {"Accede a la web",                         "Resolviste el enigma?",                   "Llamad a Salas paquetes"},
   {"Usa el joystick",                         "Prueba5 - Pista2",                        "Prueba5 - Pista3"},
   {"Un pulsador genera musica",               "Sabeis el anyo de la cancion?",           "Alguien dijo morse?"},
   {"Moviendo un encoder cambian las letras",  "Los numeros representan un orden",        "Luann tampoco lo supo"},
   {"A accionar switches",                     "Todos deben estar en su posicion",        "Llamad a Eneko paquetes"},
-  {"Id a la coordenada",                      "Gritad la contrasenya",                   "Acercaos al micrófono"},
+  {"Id a la coordenada",                      "Gritad la contrasenya",                   "Acercaos al microfono"},
   {"No ha sido tan dificil, no?",             "Habeis sido un poco paquetes",            "Os queremos"}
 };
 // ********************************************************************************************* //
@@ -1094,6 +1094,7 @@ bool check_password(String password)
     }
     else if (password_val == CMD_GOTO_7){
       exec_goto(6);
+      set_digit8_password();
       return true;
     }
     else if (password_val == CMD_GOTO_8){
