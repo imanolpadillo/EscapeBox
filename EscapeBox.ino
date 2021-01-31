@@ -683,12 +683,13 @@ void loop() {
     // FINISH
     else if (game_step == MAX_STEPS-1 and melody_end_flag == false)
     {
-      MSG_GAMESTEP[MAX_STEPS-1][0] = "Felicidades!";
       MSG_GAMESTEP[MAX_STEPS-1][1] = "Tiempo: " + String(EEPROM.read(0)*1000 + EEPROM.read(1)*100 + EEPROM.read(2)*10 + 
         EEPROM.read(3)) + " min";
-      lcd_print(MSG_GAMESTEP[game_step][0],MSG_GAMESTEP[game_step][1],0); 
+      Serial.println("game_stepB: " + String(game_step));
+      lcd_print(MSG_GAMESTEP[MAX_STEPS-1][0],MSG_GAMESTEP[MAX_STEPS-1][1],0); 
       melody.play_melody(melody_end, sizeof(melody_end));
       melody_end_flag = true;
+      digitalWrite(GPIO_MOTOR,LOW);
     }
 
     // check error keypad command
@@ -1111,6 +1112,7 @@ bool check_password(String password)
 void exec_goto(int game_step_val)
 {
   reset_outputs();
+  delay(150);
   game_step = game_step_val;
   activate_game_step();
   password_val = "";
