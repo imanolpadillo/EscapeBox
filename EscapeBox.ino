@@ -498,6 +498,7 @@ void loop() {
     flag_emergency = true;
     game_step=0;
     write_game_step();
+    reset_outputs();
     lcd_print(MSG_EMER_1,MSG_EMER_2,0);
     play_game_step_leds();
     play_buzzer(BUZZER_ERROR);
@@ -685,7 +686,6 @@ void loop() {
     {
       MSG_GAMESTEP[MAX_STEPS-1][1] = "Tiempo: " + String(EEPROM.read(0)*1000 + EEPROM.read(1)*100 + EEPROM.read(2)*10 + 
         EEPROM.read(3)) + " min";
-      Serial.println("game_stepB: " + String(game_step));
       lcd_print(MSG_GAMESTEP[MAX_STEPS-1][0],MSG_GAMESTEP[MAX_STEPS-1][1],0); 
       melody.play_melody(melody_end, sizeof(melody_end));
       melody_end_flag = true;
