@@ -175,7 +175,7 @@ const double GPS_TARGET_LONGITUDE =         -2.66903;
 #define RECORDING_MS                      60000
 // lcd
 #define LCD_ADDRESS                       0x27
-#define LCD_SPEED                         300
+#define LCD_SPEED                         400
 #define LCD_BUFFER                        40
 #define LCD_COLS                          16
 #define LCD_ROWS                          2
@@ -261,13 +261,13 @@ String LMATRIX_TAPE = "www.escapebox.com";
 const String MSG_GAMESTEP[MAX_STEPS][LCD_ROWS] = {
   {"Prueba 1        ", "Cables de color "},
   {"Prueba 2        ", "Simon says!     "},
-  {"Prueba 3        ", "rfid            "},
-  {"Prueba 4        ", "led matrix      "},
-  {"Prueba 5        ", "joystick        "},
-  {"Prueba 6        ", "dates           "},
-  {"Prueba 7        ", "dignity         "},
-  {"Prueba 8        ", "switches        "},
-  {"Prueba 9        ", "gps             "},
+  {"Prueba 3        ", "Mystery card    "},
+  {"Prueba 4        ", "Jerogrífico     "},
+  {"Prueba 5        ", "Volando voy     "},
+  {"Prueba 6        ", "Música maestro  "},
+  {"Prueba 7        ", "Secret word     "},
+  {"Prueba 8        ", "Switch me       "},
+  {"Prueba 9        ", "Desenlace       "},
   {"Felicidades!", "Tiempo: " + String(EEPROM.read(0)*1000 + EEPROM.read(1)*100 + EEPROM.read(2)*10 + 
       EEPROM.read(3)) + " min"}
 };
@@ -284,15 +284,15 @@ const String MSG_CLUE_1[MAX_STEPS][MAX_CLUES] = {
   {"Prueba10 - Pista1", "Prueba10 - Pista2", "Prueba10 - Pista3"}
 };
 const String MSG_CLUE_2[MAX_STEPS][MAX_CLUES] = {
-  {"Cada cable tiene un color", "Accionando leds de color parpadean X veces", "Encontrareis un simbolo en las coordenadas"},
-  {"Se han encendido unas luces en un orden", "Pulsa las luces en el orden", "Muy rápido? Graba la secuencia con un móvil"},
-  {"Prueba3 - Pista1", "Prueba3 - Pista2", "Prueba3 - Pista3"},
-  {"Prueba4 - Pista1", "Prueba4 - Pista2", "Prueba4 - Pista3"},
-  {"Prueba5 - Pista1", "Prueba5 - Pista2", "Prueba5 - Pista3"},
-  {"Prueba6 - Pista1", "Prueba6 - Pista2", "Prueba6 - Pista3"},
-  {"Prueba7 - Pista1", "Prueba7 - Pista2", "Prueba7 - Pista3"},
-  {"Prueba8 - Pista1", "Prueba8 - Pista2", "Prueba8 - Pista3"},
-  {"Prueba9 - Pista1", "Prueba9 - Pista2", "Prueba9 - Pista3"},
+  {"Cada cable tiene un color", "Accionando los leds de color parpadean X veces", "Encontrareis un simbolo en cada coordenada"},
+  {"Se han encendido unas luces en un orden", "Pulsad las luces en el orden", "Muy rápido? Grabad la secuencia con un móvil"},
+  {"Hay un mapa que muestra unas X", "Quiza alguien os tenga que dar un objeto", "Usa la expresión secreta para conseguir el objeto"},
+  {"Accede a la web", "Resolviste el enigma?", "Llamad a Salas paquetes"},
+  {"Usa el joystick", "Prueba5 - Pista2", "Prueba5 - Pista3"},
+  {"Un pulsador genera musica", "Sabeis el anyo de la cancion?", "Alguien dijo morse?"},
+  {"Moviendo un encoder cambian las letras", "Los numeros representan un orden", "Luann tampoco lo supo"},
+  {"A accionar switches", "Todos deben estar en su posicion", "Llamad a Eneko paquetes"},
+  {"Id a la coordenada", "Gritad la contrasenya", "Acercaos al micrófono"},
   {"Prueba10 - Pista1", "Prueba10 - Pista2", "Prueba10 - Pista3"}
 };
 // ********************************************************************************************* //
