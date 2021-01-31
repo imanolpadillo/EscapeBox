@@ -293,7 +293,7 @@ const String MSG_CLUE_2[MAX_STEPS][MAX_CLUES] = {
   {"Moviendo un encoder cambian las letras", "Los numeros representan un orden", "Luann tampoco lo supo"},
   {"A accionar switches", "Todos deben estar en su posicion", "Llamad a Eneko paquetes"},
   {"Id a la coordenada", "Gritad la contrasenya", "Acercaos al micrófono"},
-  {"Prueba10 - Pista1", "Prueba10 - Pista2", "Prueba10 - Pista3"}
+  {"No ha sido tan dificil, no?", "Habeis sido un poco paquetes", "Os queremos"}
 };
 // ********************************************************************************************* //
 // VARIABLES
@@ -722,10 +722,9 @@ void loop() {
 // Increment recording time
 void increment_recording_time(int minutes)
 {
-  if (game_step < MAX_STEPS-1)
-  {  
+  //if (game_step < MAX_STEPS-1)
+  //{  
     loop_ms = millis();
-    
     int current_minutes = EEPROM.read(0)*1000 + EEPROM.read(1)*100 + EEPROM.read(2)*10 + 
       EEPROM.read(3) + minutes;
     
@@ -736,7 +735,7 @@ void increment_recording_time(int minutes)
     digits[1]=0;
     digits[0]=0;
     while(current_minutes>0 && i<4){
-      digits[i++] = current_minutes % 10; // you can change the 10 here and below to any number base
+      digits[i++] = current_minutes % 10; 
       current_minutes /= 10;
     }
 
@@ -754,7 +753,7 @@ void increment_recording_time(int minutes)
     EEPROM.write(1,digits[2]);
     EEPROM.write(2,digits[1]);
     EEPROM.write(3,digits[0]);
-  }
+  //}
 }
 
 
@@ -1031,8 +1030,10 @@ void play_clue ()
   flag_playing_clue = false;
 
   //increment current time -> penalization (1,2 or 3 minutes)
-  increment_recording_time(index_next_clue+1);
-  play_buzzer(BUZZER_KEY);
+  if (game_step < MAX_STEPS-1){
+    increment_recording_time(index_next_clue+1);
+    play_buzzer(BUZZER_KEY);
+  }
   
 }
 
@@ -1060,6 +1061,7 @@ bool check_password(String password)
       EEPROM.write(3,0);
       play_buzzer(BUZZER_SUCCESS);
       password_val = "";
+      increment_recording_time(0);
       return true;
     }
     else if (password_val == CMD_GOTO_1){
@@ -1122,6 +1124,7 @@ void exec_goto(int game_step_val)
 // Reset all outputs
 void reset_outputs()
 {
+  // flag init
   password_val = "";
   // GAME STEP 0 - WIRES
   // GAME STEP 1 - SIMON
