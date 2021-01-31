@@ -284,16 +284,17 @@ const String MSG_CLUE_1[MAX_STEPS][MAX_CLUES] = {
   {"Prueba10 - Pista1", "Prueba10 - Pista2", "Prueba10 - Pista3"}
 };
 const String MSG_CLUE_2[MAX_STEPS][MAX_CLUES] = {
-  {"Cada cable tiene un color", "Accionando los leds de color parpadean X veces", "Encontrareis un simbolo en cada coordenada"},
-  {"Se han encendido unas luces en un orden", "Pulsad las luces en el orden", "Muy rápido? Grabad la secuencia con un móvil"},
-  {"Hay un mapa que muestra unas X", "Quiza alguien os tenga que dar un objeto", "Usa la expresión secreta para conseguir el objeto"},
-  {"Accede a la web", "Resolviste el enigma?", "Llamad a Salas paquetes"},
-  {"Usa el joystick", "Prueba5 - Pista2", "Prueba5 - Pista3"},
-  {"Un pulsador genera musica", "Sabeis el anyo de la cancion?", "Alguien dijo morse?"},
-  {"Moviendo un encoder cambian las letras", "Los numeros representan un orden", "Luann tampoco lo supo"},
-  {"A accionar switches", "Todos deben estar en su posicion", "Llamad a Eneko paquetes"},
-  {"Id a la coordenada", "Gritad la contrasenya", "Acercaos al micrófono"},
-  {"No ha sido tan dificil, no?", "Habeis sido un poco paquetes", "Os queremos"}
+  //1234567890123456789012345678901234567890   1234567890123456789012345678901234567890   1234567890123456789012345678901234567890
+  {"Cada cable tiene un color",               "Accionar los leds con un interruptor",    "Cada coordenada os da un simbolo"},
+  {"Se han encendido unas luces en un orden", "Pulsad las luces en el orden",            "Muy rápido?Grabad la secuencia con móvil"},
+  {"Hay un mapa que muestra unas X",          "Quiza alguien os tenga que dar un objeto","Usad expresión secreta en coordenada"},
+  {"Accede a la web",                         "Resolviste el enigma?",                   "Llamad a Salas paquetes"},
+  {"Usa el joystick",                         "Prueba5 - Pista2",                        "Prueba5 - Pista3"},
+  {"Un pulsador genera musica",               "Sabeis el anyo de la cancion?",           "Alguien dijo morse?"},
+  {"Moviendo un encoder cambian las letras",  "Los numeros representan un orden",        "Luann tampoco lo supo"},
+  {"A accionar switches",                     "Todos deben estar en su posicion",        "Llamad a Eneko paquetes"},
+  {"Id a la coordenada",                      "Gritad la contrasenya",                   "Acercaos al micrófono"},
+  {"No ha sido tan dificil, no?",             "Habeis sido un poco paquetes",            "Os queremos"}
 };
 // ********************************************************************************************* //
 // VARIABLES
