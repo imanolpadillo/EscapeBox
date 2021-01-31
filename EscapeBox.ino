@@ -259,8 +259,8 @@ String LMATRIX_TAPE = "www.escapebox.com";
 #define MSG_EMER_2                        "Juego Reseteado "
 
 const String MSG_GAMESTEP[MAX_STEPS][LCD_ROWS] = {
-  {"Prueba 1        ", "Cables y leds   "},
-  {"Prueba 2        ", "Simon           "},
+  {"Prueba 1        ", "Cables de color "},
+  {"Prueba 2        ", "Simon says!     "},
   {"Prueba 3        ", "rfid            "},
   {"Prueba 4        ", "led matrix      "},
   {"Prueba 5        ", "joystick        "},
@@ -284,8 +284,8 @@ const String MSG_CLUE_1[MAX_STEPS][MAX_CLUES] = {
   {"Prueba10 - Pista1", "Prueba10 - Pista2", "Prueba10 - Pista3"}
 };
 const String MSG_CLUE_2[MAX_STEPS][MAX_CLUES] = {
-  {"Prueba1 - Pista1", "Prueba1 - Pista2", "Prueba1 - Pista3"},
-  {"Prueba2 - Pista1", "Prueba2 - Pista2", "Prueba2 - Pista3"},
+  {"Cada cable tiene un color", "Accionando leds de color parpadean X veces", "Encontrareis un simbolo en las coordenadas"},
+  {"Se han encendido unas luces en un orden", "Pulsa las luces en el orden", "Muy rápido? Graba la secuencia con un móvil"},
   {"Prueba3 - Pista1", "Prueba3 - Pista2", "Prueba3 - Pista3"},
   {"Prueba4 - Pista1", "Prueba4 - Pista2", "Prueba4 - Pista3"},
   {"Prueba5 - Pista1", "Prueba5 - Pista2", "Prueba5 - Pista3"},
@@ -958,15 +958,15 @@ void lcd_print(String line1, String line2, int timeout)
       lcd.clear();
     }
   }
-  else {
+  else if (lcd_msg_1.length()>16 or lcd_msg_2.length()>16 ){
     if (lcd_scroll_flag==true && (millis()-lcd_scroll_ms)>LCD_SPEED)
     {
       lcd_scroll_flag=false;
-      lcd_scroll_ms=millis();
     }
     else if (lcd_scroll_flag==false)
     {
       lcd_scroll_flag=true;
+      lcd_scroll_ms=millis();
       lcd_scroll();
     }
   }
@@ -1022,6 +1022,7 @@ void play_clue ()
   if (clue_2.length()>LCD_COLS){
     for (int i=0; i<=LCD_BUFFER; i++){
       lcd_print(clue_1, clue_2, 0);
+      delay(LCD_SPEED);
     }
   }
   else{
