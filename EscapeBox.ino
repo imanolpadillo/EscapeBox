@@ -73,10 +73,10 @@
 // GAME STEP 4: joystick   
 const String GS4_PASSWORD  =              "LLRRUD";
 // GAME STEP 5: encoder
-#define YEAR_0                            1510
-#define YEAR_1                            1511
-#define YEAR_2                            1512
-#define YEAR_3                            1513
+#define YEAR_0                            1861
+#define YEAR_1                            1963
+#define YEAR_2                            1985
+#define YEAR_3                            2012
 // GAME STEP 6: display
 #define GS7_PASSWORD                      "DIGNIDAD"
 // GAME STEP 7: gps
@@ -212,19 +212,18 @@ int melody_0[] = {
   NOTE_C5, 4,  NOTE_A4,4,  NOTE_A4,4, REST, 4,
 };
 int melody_1[] = {
-  NOTE_FS5,8, NOTE_FS5,8,NOTE_D5,8, NOTE_B4,8, REST,8, NOTE_B4,8, REST,8, NOTE_E5,8, 
-  REST,8, NOTE_E5,8, REST,8, NOTE_E5,8, NOTE_GS5,8, NOTE_GS5,8, NOTE_A5,8, NOTE_B5,8,
-  NOTE_A5,8, NOTE_A5,8, NOTE_A5,8, NOTE_E5,8, REST,8, NOTE_D5,8, REST,8, NOTE_FS5,8, 
-  REST,8, NOTE_FS5,8, REST,8, NOTE_FS5,8, NOTE_E5,8, NOTE_E5,8, NOTE_FS5,8, NOTE_E5,8,
-  NOTE_FS5,8, NOTE_FS5,8,NOTE_D5,8, NOTE_B4,8, REST,8, NOTE_B4,8, REST,8, NOTE_E5,8, 
-  };
-
-int melody_2[] = {
   REST,2, REST,4, REST,8, NOTE_DS4,8, 
   NOTE_E4,-4, REST,8, NOTE_FS4,8, NOTE_G4,-4, REST,8, NOTE_DS4,8,
   NOTE_E4,-8, NOTE_FS4,8,  NOTE_G4,-8, NOTE_C5,8, NOTE_B4,-8, NOTE_E4,8, NOTE_G4,-8, NOTE_B4,8,   
   NOTE_AS4,2, NOTE_A4,-16, NOTE_G4,-16, NOTE_E4,-16, NOTE_D4,-16, 
   NOTE_E4,2,
+  };
+int melody_2[] = {
+  NOTE_FS5,8, NOTE_FS5,8,NOTE_D5,8, NOTE_B4,8, REST,8, NOTE_B4,8, REST,8, NOTE_E5,8, 
+  REST,8, NOTE_E5,8, REST,8, NOTE_E5,8, NOTE_GS5,8, NOTE_GS5,8, NOTE_A5,8, NOTE_B5,8,
+  NOTE_A5,8, NOTE_A5,8, NOTE_A5,8, NOTE_E5,8, REST,8, NOTE_D5,8, REST,8, NOTE_FS5,8, 
+  REST,8, NOTE_FS5,8, REST,8, NOTE_FS5,8, NOTE_E5,8, NOTE_E5,8, NOTE_FS5,8, NOTE_E5,8,
+  NOTE_FS5,8, NOTE_FS5,8,NOTE_D5,8, NOTE_B4,8, REST,8, NOTE_B4,8, REST,8, NOTE_E5,8, 
   };
 String morse_0 = ".-.. --- ... / .--. .. ... - --- .-.. . .-. --- ... / -.. . .-.. / . -.-. .-.. .. .--. ... .";
 
@@ -1130,6 +1129,7 @@ void reset_outputs()
   password_val = "";
   // GAME STEP 0 - WIRES
   // GAME STEP 1 - SIMON
+  simon_played = false;
   simon_input = "";
   digitalWrite(GPIO_SIMON_R_L,LOW);
   digitalWrite(GPIO_SIMON_G_L,LOW);
