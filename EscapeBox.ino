@@ -260,10 +260,10 @@ String LMATRIX_TAPE = "www.escapebox.com";
 const String MSG_GAMESTEP[MAX_STEPS][LCD_ROWS] = {
   {"Prueba 1        ", "Cables de color "},
   {"Prueba 2        ", "Simon says!     "},
-  {"Prueba 3        ", "Mystery card    "},
-  {"Prueba 4        ", "Jerogrifico     "},
+  {"Prueba 3        ", "Mistery card    "},
+  {"Prueba 4        ", "Jeroglifico     "},
   {"Prueba 5        ", "Volando voy     "},
-  {"Prueba 6        ", "Música maestro  "},
+  {"Prueba 6        ", "Musica maestro  "},
   {"Prueba 7        ", "Secret word     "},
   {"Prueba 8        ", "Switch me       "},
   {"Prueba 9        ", "Desenlace       "},
