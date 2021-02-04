@@ -205,6 +205,7 @@ const double GPS_TARGET_LONGITUDE =         -2.66903;
 #define GPS_TARGET_DISTANCE               500  //meters
 // microphone
 #define MICROPHONE_LEVEL                  900
+#define MICROPHONE_MAX_COUNTER            5
 // buzzer
 int melody_0[] = {
   NOTE_E5, 4,  NOTE_B4,8,  NOTE_C5,8,  NOTE_D5,4,  NOTE_C5,8,  NOTE_B4,8,
@@ -380,6 +381,7 @@ double longitude;
 
 // game_step finsih
 bool melody_end_flag = false;
+int microphone_counter = 0;
 
 // ********************************************************************************************* //
 // SETUP
@@ -496,8 +498,6 @@ void setup() {
 // MAIN
 // ********************************************************************************************* //
 void loop() {
-
-  digitalWrite(GPIO_LOCKER,LOW);
 
   // check emergency
   if (digitalRead(GPIO_EMERGENCY)==LOW and flag_emergency==false){  
@@ -686,7 +686,7 @@ void loop() {
         }
       }
   
-      if (gps_in_target == true and analogRead(GPIO_MICROPHONE)>MICROPHONE_LEVEL){
+      if (gps_in_target == true and check_microphone()==true){
         increment_game_step();
         //Serial.println("End");
       }
@@ -1172,6 +1172,9 @@ void reset_outputs()
   // GAME STEP 8 - GPS
   gps_in_target = false;
   digitalWrite(GPIO_GPS_LED,LOW);
+  // GAME STEP 9 - end
+  microphone_counter = 0;
+  gps_in_target = false;
 }
 
 // ********************************************************************************************* //
@@ -1857,5 +1860,19 @@ void play_gps_led()
   else {
     digitalWrite(GPIO_GPS_LED, HIGH);
     gps_led_status=true;
+  }
+}
+
+// check that microphone limit is achieved X times
+bool check_microphone()
+{
+  if (analogRead(GPIO_MICROPHONE)>MICROPHONE_LEVEL){
+    microphone_counter++;
+  }
+  if (microphone_counter>MICROPHONE_MAX_COUNTER){
+    return true;
+  }
+  else{
+    return false;
   }
 }
