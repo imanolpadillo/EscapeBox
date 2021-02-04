@@ -68,6 +68,11 @@
 // GAME STEP 2: rfid
 #define RFID_WHITE                        "3221477164"
 #define RFID_BLUE                         "575574115"
+#define MAX_RFID                          2
+String RFID_LIST[MAX_RFID][2] = {
+  {"3221477164", "0"},
+  {"575574115", "0"}
+};
 // GAME STEP 3: ledmatrix
 #define GS3_PASSWORD                      "1234"
 // GAME STEP 4: joystick   
@@ -492,6 +497,8 @@ void setup() {
 // ********************************************************************************************* //
 void loop() {
 
+  digitalWrite(GPIO_LOCKER,LOW);
+
   // check emergency
   if (digitalRead(GPIO_EMERGENCY)==LOW and flag_emergency==false){  
     // emergency pressed
@@ -585,8 +592,12 @@ void loop() {
     // GAME_STEP_2
     else if (game_step == 2)
     {
-      if (read_rfid() == true){
+      if (check_rfid() == true){
+          print_missing_rfid();
           increment_game_step();
+          // empty led matrix
+          matrix.fillScreen(0);
+          matrix.write();
       }
     }
     // GAME_STEP_3
@@ -1136,6 +1147,11 @@ void reset_outputs()
   digitalWrite(GPIO_SIMON_B_L,LOW);
   digitalWrite(GPIO_SIMON_Y_L,LOW);
   // GAME STEP 2 - RFID
+  for (int i=0;i<MAX_RFID;i++){
+    RFID_LIST[i][1] = "0";
+  } 
+  //matrix.fillScreen(0);
+  //matrix.write();
   // GAME STEP 3 - LED MATRIX
   matrix.fillScreen(0);
   matrix.write();
@@ -1355,8 +1371,56 @@ String printArray(byte *buffer, byte bufferSize) {
    return rfid_data;
 }
 
+// Read rfid and check that rfid list is finished
+bool check_rfid()
+{
+  print_missing_rfid();
+  String rfid_val = read_rfid();
+  if (rfid_val != ""){
+    // look for rfid val in the list and activate it
+    for (int i=0;i<MAX_RFID;i++){
+      if (RFID_LIST[i][0] == rfid_val){
+        if (RFID_LIST[i][1] == "0"){
+          RFID_LIST[i][1] = "1";
+          play_buzzer(BUZZER_SUCCESS);
+          //Serial.println("activate:" + rfid_val);
+        }
+        break;
+      }
+    }
+    bool flag = true;
+    // check if all rfid ids have been activated
+    for (int i=0;i<MAX_RFID;i++){
+      //Serial.println("list[" + String(i) + "]: " + RFID_LIST[i][1] );
+      if (RFID_LIST[i][1] != "1"){
+        flag = false;
+        break;
+      }
+    }
+    return flag;
+  }
+  else{
+    return false;
+  }
+}
+
+// Print missing rfid items
+void print_missing_rfid()
+{
+  int counter = 0;
+  for (int i=0;i<MAX_RFID;i++){
+    if (RFID_LIST[i][1] != "1"){
+      counter++;
+    }
+  } 
+  //Serial.println("Counter: " + String(counter));
+  matrix.fillScreen(LOW);
+  matrix.drawChar(1, 0, String(counter)[0], HIGH, LOW, 1);
+  matrix.write();
+}
+
 // Read rfid data
-bool read_rfid()
+String read_rfid()
 {
   String rfid_data;
  if (mfrc522.PICC_IsNewCardPresent())
@@ -1371,10 +1435,10 @@ bool read_rfid()
    }
    delay(250);
    if (rfid_data == RFID_WHITE or rfid_data == RFID_BLUE){
-    return true;
+    return rfid_data;
    }
    else{
-    return false;
+    return "";
    }
 }
 
