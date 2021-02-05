@@ -66,12 +66,14 @@
 #define SIMON_SEQUENCE_2                  "GGGBBB"
 #define SIMON_SEQUENCE_3                  "GGGBBB"
 // GAME STEP 2: rfid
-#define RFID_WHITE                        "3221477164"
-#define RFID_BLUE                         "575574115"
-#define MAX_RFID                          2
+#define MAX_RFID                          6
 String RFID_LIST[MAX_RFID][2] = {
   {"3221477164", "0"},
-  {"575574115", "0"}
+  {"21814120015", "0"},
+  {"25025318415", "0"},
+  {"2623418915", "0"},
+  {"423018815", "0"},
+  {"424619615", "0"},
 };
 // GAME STEP 3: ledmatrix
 #define GS3_PASSWORD                      "1234"
@@ -517,10 +519,10 @@ void loop() {
   // normal loop
   if (flag_emergency==false){
     // waste
-    int aaa=analogRead(GPIO_MICROPHONE);
-    if (aaa>500){
-      Serial.println(aaa);
-    }
+    //int aaa=analogRead(GPIO_MICROPHONE);
+    //if (aaa>500){
+    //  Serial.println(aaa);
+    //}
     
     // Clue
     if (flag_playing_clue == true){
@@ -1380,6 +1382,7 @@ bool check_rfid()
   print_missing_rfid();
   String rfid_val = read_rfid();
   if (rfid_val != ""){
+    //Serial.println("rfid:" + rfid_val);
     // look for rfid val in the list and activate it
     for (int i=0;i<MAX_RFID;i++){
       if (RFID_LIST[i][0] == rfid_val){
@@ -1437,12 +1440,7 @@ String read_rfid()
       }
    }
    delay(250);
-   if (rfid_data == RFID_WHITE or rfid_data == RFID_BLUE){
-    return rfid_data;
-   }
-   else{
-    return "";
-   }
+   return rfid_data;
 }
 
 // ********************************************************************************************* //
