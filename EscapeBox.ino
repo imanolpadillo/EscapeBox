@@ -83,7 +83,7 @@ const String GS4_PASSWORD  =              "LLRRUD";
 #define YEAR_0                            1861
 #define YEAR_1                            1963
 #define YEAR_2                            1985
-#define YEAR_3                            2012
+#define YEAR_3                            2009
 // GAME STEP 6: display
 #define GS7_PASSWORD                      "DIGNIDAD"
 // GAME STEP 7: gps
