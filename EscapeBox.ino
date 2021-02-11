@@ -111,7 +111,7 @@ const double GPS_TARGET_LONGITUDE =         -2.66903;
 #define GPIO_LED_8                        68
 #define GPIO_LED_9                        69
 #define GPIO_MOTOR                        16
-#define GPIO_LOCKER                       13
+#define GPIO_LOCKER                       43//13
 // GAME STEP 0: wires + leds
 #define GPIO_PULSE                        3
 #define GPIO_LED_R                        22
@@ -172,7 +172,7 @@ const double GPS_TARGET_LONGITUDE =         -2.66903;
 #define GPIO_MICROPHONE                   A2
 #define GPIO_GPS_TX                       14
 #define GPIO_GPS_RX                       15
-#define GPIO_GPS_LED                      43
+#define GPIO_GPS_LED                      13//43
 
 // ********************************************************************************************* //
 // CONSTANTS
@@ -405,6 +405,7 @@ void setup() {
   pinMode(GPIO_LED_8, OUTPUT);
   pinMode(GPIO_MOTOR, OUTPUT);
   pinMode(GPIO_LOCKER, OUTPUT);
+  digitalWrite(GPIO_LOCKER,LOW);
   // GAME STEP 0: wires + leds
   pinMode(GPIO_LED_R, OUTPUT);  
   pinMode(GPIO_LED_G, OUTPUT);  
@@ -503,6 +504,7 @@ void loop() {
 
   // check emergency
   if (digitalRead(GPIO_EMERGENCY)==LOW and flag_emergency==false){  
+    digitalWrite(GPIO_LOCKER,HIGH);
     // emergency pressed
     flag_emergency = true;
     game_step=0;
@@ -700,6 +702,7 @@ void loop() {
       MSG_GAMESTEP[MAX_STEPS-1][1] = "Tiempo: " + String(EEPROM.read(0)*1000 + EEPROM.read(1)*100 + EEPROM.read(2)*10 + 
         EEPROM.read(3)) + " min";
       lcd_print(MSG_GAMESTEP[MAX_STEPS-1][0],MSG_GAMESTEP[MAX_STEPS-1][1],0); 
+      digitalWrite(GPIO_MOTOR,HIGH);
       melody.play_melody(melody_end, sizeof(melody_end));
       melody_end_flag = true;
       digitalWrite(GPIO_MOTOR,LOW);
@@ -712,6 +715,8 @@ void loop() {
     }
 
   }
+
+  Serial.println(game_step);
 
   // Increment recording time
   if((millis()-loop_ms>=RECORDING_MS) and (game_step<MAX_STEPS-1)){
@@ -819,7 +824,7 @@ void play_game_step_leds()
     digitalWrite(GPIO_LED_8, LOW);
     digitalWrite(GPIO_LED_9, LOW);
     digitalWrite(GPIO_MOTOR, LOW);
-    digitalWrite(GPIO_LOCKER, LOW);
+    //digitalWrite(GPIO_LOCKER, LOW);
   } else if (game_step==1){
     digitalWrite(GPIO_LED_1, HIGH);
     digitalWrite(GPIO_LED_2, LOW);
@@ -831,7 +836,7 @@ void play_game_step_leds()
     digitalWrite(GPIO_LED_8, LOW);  
     digitalWrite(GPIO_LED_9, LOW);
     digitalWrite(GPIO_MOTOR, LOW);
-    digitalWrite(GPIO_LOCKER, LOW);
+    //digitalWrite(GPIO_LOCKER, LOW);
   } else if (game_step==2){
     digitalWrite(GPIO_LED_1, HIGH);
     digitalWrite(GPIO_LED_2, HIGH);
@@ -843,7 +848,7 @@ void play_game_step_leds()
     digitalWrite(GPIO_LED_8, LOW); 
     digitalWrite(GPIO_LED_9, LOW);
     digitalWrite(GPIO_MOTOR, LOW);
-    digitalWrite(GPIO_LOCKER, LOW);
+    //digitalWrite(GPIO_LOCKER, LOW);
   } else if (game_step==3){
     digitalWrite(GPIO_LED_1, HIGH);
     digitalWrite(GPIO_LED_2, HIGH);
@@ -855,7 +860,7 @@ void play_game_step_leds()
     digitalWrite(GPIO_LED_8, LOW);
     digitalWrite(GPIO_LED_9, LOW);
     digitalWrite(GPIO_MOTOR, LOW);
-    digitalWrite(GPIO_LOCKER, LOW);
+    //digitalWrite(GPIO_LOCKER, LOW);
   } else if (game_step==4){
     digitalWrite(GPIO_LED_1, HIGH);
     digitalWrite(GPIO_LED_2, HIGH);
@@ -867,7 +872,7 @@ void play_game_step_leds()
     digitalWrite(GPIO_LED_8, LOW);
     digitalWrite(GPIO_LED_9, LOW);
     digitalWrite(GPIO_MOTOR, LOW);
-    digitalWrite(GPIO_LOCKER, LOW);
+    //digitalWrite(GPIO_LOCKER, LOW);
   } else if (game_step==5){
     digitalWrite(GPIO_LED_1, HIGH);
     digitalWrite(GPIO_LED_2, HIGH);
@@ -879,7 +884,7 @@ void play_game_step_leds()
     digitalWrite(GPIO_LED_8, LOW);  
     digitalWrite(GPIO_LED_9, LOW);
     digitalWrite(GPIO_MOTOR, LOW);
-    digitalWrite(GPIO_LOCKER, LOW); 
+    //digitalWrite(GPIO_LOCKER, LOW); 
   } else if (game_step==6){
     digitalWrite(GPIO_LED_1, HIGH);
     digitalWrite(GPIO_LED_2, HIGH);
@@ -891,7 +896,7 @@ void play_game_step_leds()
     digitalWrite(GPIO_LED_8, LOW);
     digitalWrite(GPIO_LED_9, LOW);
     digitalWrite(GPIO_MOTOR, LOW);
-    digitalWrite(GPIO_LOCKER, LOW); 
+    //digitalWrite(GPIO_LOCKER, LOW); 
   } else if (game_step==7){
     digitalWrite(GPIO_LED_1, HIGH);
     digitalWrite(GPIO_LED_2, HIGH);
@@ -903,7 +908,7 @@ void play_game_step_leds()
     digitalWrite(GPIO_LED_8, LOW);
     digitalWrite(GPIO_LED_9, LOW);
     digitalWrite(GPIO_MOTOR, LOW);
-    digitalWrite(GPIO_LOCKER, LOW);
+    //digitalWrite(GPIO_LOCKER, LOW);
   } else if (game_step==8){
     digitalWrite(GPIO_LED_1, HIGH);
     digitalWrite(GPIO_LED_2, HIGH);
@@ -915,7 +920,7 @@ void play_game_step_leds()
     digitalWrite(GPIO_LED_8, HIGH); 
     digitalWrite(GPIO_LED_9, LOW);
     digitalWrite(GPIO_MOTOR, LOW);
-    digitalWrite(GPIO_LOCKER, LOW);
+    //digitalWrite(GPIO_LOCKER, LOW);
   } else if (game_step==MAX_STEPS - 1){
     digitalWrite(GPIO_LED_1, HIGH);
     digitalWrite(GPIO_LED_2, HIGH);
@@ -927,7 +932,7 @@ void play_game_step_leds()
     digitalWrite(GPIO_LED_8, HIGH); 
     digitalWrite(GPIO_LED_9, HIGH);
     digitalWrite(GPIO_MOTOR, HIGH);
-    digitalWrite(GPIO_LOCKER, HIGH);
+    //digitalWrite(GPIO_LOCKER, HIGH);
   }
   
 }
@@ -1177,6 +1182,8 @@ void reset_outputs()
   // GAME STEP 9 - end
   microphone_counter = 0;
   gps_in_target = false;
+  // FINISH
+  melody_end_flag = false;
 }
 
 // ********************************************************************************************* //
