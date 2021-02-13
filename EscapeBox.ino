@@ -697,15 +697,20 @@ void loop() {
     }
   
     // FINISH
-    else if (game_step == MAX_STEPS-1 and melody_end_flag == false)
+    if (game_step == MAX_STEPS-1 and melody_end_flag == false)
     {
+      // Read eeprom
       MSG_GAMESTEP[MAX_STEPS-1][1] = "Tiempo: " + String(EEPROM.read(0)*1000 + EEPROM.read(1)*100 + EEPROM.read(2)*10 + 
         EEPROM.read(3)) + " min";
       lcd_print(MSG_GAMESTEP[MAX_STEPS-1][0],MSG_GAMESTEP[MAX_STEPS-1][1],0); 
       digitalWrite(GPIO_MOTOR,HIGH);
+      digitalWrite(GPIO_LOCKER,HIGH);
       melody.play_melody(melody_end, sizeof(melody_end));
       melody_end_flag = true;
       digitalWrite(GPIO_MOTOR,LOW);
+      digitalWrite(GPIO_LOCKER,LOW);
+      delay(1000);
+      flag_playing_clue = false;
     }
 
     // check error keypad command
@@ -716,7 +721,7 @@ void loop() {
 
   }
 
-  Serial.println(game_step);
+  //Serial.println(game_step);
 
   // Increment recording time
   if((millis()-loop_ms>=RECORDING_MS) and (game_step<MAX_STEPS-1)){
@@ -823,7 +828,7 @@ void play_game_step_leds()
     digitalWrite(GPIO_LED_7, LOW);
     digitalWrite(GPIO_LED_8, LOW);
     digitalWrite(GPIO_LED_9, LOW);
-    digitalWrite(GPIO_MOTOR, LOW);
+    //digitalWrite(GPIO_MOTOR, LOW);
     //digitalWrite(GPIO_LOCKER, LOW);
   } else if (game_step==1){
     digitalWrite(GPIO_LED_1, HIGH);
@@ -835,7 +840,7 @@ void play_game_step_leds()
     digitalWrite(GPIO_LED_7, LOW);
     digitalWrite(GPIO_LED_8, LOW);  
     digitalWrite(GPIO_LED_9, LOW);
-    digitalWrite(GPIO_MOTOR, LOW);
+    //digitalWrite(GPIO_MOTOR, LOW);
     //digitalWrite(GPIO_LOCKER, LOW);
   } else if (game_step==2){
     digitalWrite(GPIO_LED_1, HIGH);
@@ -847,7 +852,7 @@ void play_game_step_leds()
     digitalWrite(GPIO_LED_7, LOW);
     digitalWrite(GPIO_LED_8, LOW); 
     digitalWrite(GPIO_LED_9, LOW);
-    digitalWrite(GPIO_MOTOR, LOW);
+    //digitalWrite(GPIO_MOTOR, LOW);
     //digitalWrite(GPIO_LOCKER, LOW);
   } else if (game_step==3){
     digitalWrite(GPIO_LED_1, HIGH);
@@ -859,7 +864,7 @@ void play_game_step_leds()
     digitalWrite(GPIO_LED_7, LOW);
     digitalWrite(GPIO_LED_8, LOW);
     digitalWrite(GPIO_LED_9, LOW);
-    digitalWrite(GPIO_MOTOR, LOW);
+    //digitalWrite(GPIO_MOTOR, LOW);
     //digitalWrite(GPIO_LOCKER, LOW);
   } else if (game_step==4){
     digitalWrite(GPIO_LED_1, HIGH);
@@ -871,7 +876,7 @@ void play_game_step_leds()
     digitalWrite(GPIO_LED_7, LOW);
     digitalWrite(GPIO_LED_8, LOW);
     digitalWrite(GPIO_LED_9, LOW);
-    digitalWrite(GPIO_MOTOR, LOW);
+    //digitalWrite(GPIO_MOTOR, LOW);
     //digitalWrite(GPIO_LOCKER, LOW);
   } else if (game_step==5){
     digitalWrite(GPIO_LED_1, HIGH);
@@ -883,7 +888,7 @@ void play_game_step_leds()
     digitalWrite(GPIO_LED_7, LOW);
     digitalWrite(GPIO_LED_8, LOW);  
     digitalWrite(GPIO_LED_9, LOW);
-    digitalWrite(GPIO_MOTOR, LOW);
+    //digitalWrite(GPIO_MOTOR, LOW);
     //digitalWrite(GPIO_LOCKER, LOW); 
   } else if (game_step==6){
     digitalWrite(GPIO_LED_1, HIGH);
@@ -895,7 +900,7 @@ void play_game_step_leds()
     digitalWrite(GPIO_LED_7, LOW);
     digitalWrite(GPIO_LED_8, LOW);
     digitalWrite(GPIO_LED_9, LOW);
-    digitalWrite(GPIO_MOTOR, LOW);
+    //digitalWrite(GPIO_MOTOR, LOW);
     //digitalWrite(GPIO_LOCKER, LOW); 
   } else if (game_step==7){
     digitalWrite(GPIO_LED_1, HIGH);
@@ -907,7 +912,7 @@ void play_game_step_leds()
     digitalWrite(GPIO_LED_7, HIGH);
     digitalWrite(GPIO_LED_8, LOW);
     digitalWrite(GPIO_LED_9, LOW);
-    digitalWrite(GPIO_MOTOR, LOW);
+    //digitalWrite(GPIO_MOTOR, LOW);
     //digitalWrite(GPIO_LOCKER, LOW);
   } else if (game_step==8){
     digitalWrite(GPIO_LED_1, HIGH);
@@ -919,7 +924,7 @@ void play_game_step_leds()
     digitalWrite(GPIO_LED_7, HIGH);
     digitalWrite(GPIO_LED_8, HIGH); 
     digitalWrite(GPIO_LED_9, LOW);
-    digitalWrite(GPIO_MOTOR, LOW);
+    //digitalWrite(GPIO_MOTOR, LOW);
     //digitalWrite(GPIO_LOCKER, LOW);
   } else if (game_step==MAX_STEPS - 1){
     digitalWrite(GPIO_LED_1, HIGH);
@@ -931,7 +936,7 @@ void play_game_step_leds()
     digitalWrite(GPIO_LED_7, HIGH);
     digitalWrite(GPIO_LED_8, HIGH); 
     digitalWrite(GPIO_LED_9, HIGH);
-    digitalWrite(GPIO_MOTOR, HIGH);
+    //digitalWrite(GPIO_MOTOR, HIGH);
     //digitalWrite(GPIO_LOCKER, HIGH);
   }
   
