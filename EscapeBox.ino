@@ -504,7 +504,6 @@ void loop() {
 
   // check emergency
   if (digitalRead(GPIO_EMERGENCY)==LOW and flag_emergency==false){  
-    digitalWrite(GPIO_LOCKER,HIGH);
     // emergency pressed
     flag_emergency = true;
     game_step=0;
