@@ -39,8 +39,8 @@
 // PASSWORDS
 // ********************************************************************************************* //
 // KEYPAD COMMANDS
-#define CMD_RESET_RECORDING_TIME          "A311252"
-/*#define CMD_GOTO_1                        "A000000"
+#define CMD_RESET_RECORDING_TIME          "A310721"
+#define CMD_GOTO_1                        "A000000"
 #define CMD_GOTO_2                        "A667750"
 #define CMD_GOTO_3                        "A566777"
 #define CMD_GOTO_4                        "A756778"
@@ -49,8 +49,8 @@
 #define CMD_GOTO_7                        "A173499"
 #define CMD_GOTO_8                        "A249433"
 #define CMD_GOTO_9                        "A445346"
-#define CMD_GOTO_END                      "A592288"*/
-#define CMD_GOTO_1                        "A111111"
+#define CMD_GOTO_END                      "A592288"
+/*#define CMD_GOTO_1                        "A111111"
 #define CMD_GOTO_2                        "A222222"
 #define CMD_GOTO_3                        "A333333"
 #define CMD_GOTO_4                        "A444444"
@@ -59,12 +59,12 @@
 #define CMD_GOTO_7                        "A777777"
 #define CMD_GOTO_8                        "A888888"
 #define CMD_GOTO_9                        "A999999"
-#define CMD_GOTO_END                      "AAAAAAA"
+#define CMD_GOTO_END                      "AAAAAAA"*/
 // GAME STEP 1: simon
-#define SIMON_SEQUENCE_0                  "GGBB"
-#define SIMON_SEQUENCE_1                  "GGGBBB"
-#define SIMON_SEQUENCE_2                  "GGGBBB"
-#define SIMON_SEQUENCE_3                  "GGGBBB"
+#define SIMON_SEQUENCE_0                  "GBYYR"
+#define SIMON_SEQUENCE_1                  "RGBBYRG"
+#define SIMON_SEQUENCE_2                  "BYRYRGGBYR"
+#define SIMON_SEQUENCE_3                  "GBRRYBGYRBBYG"
 // GAME STEP 2: rfid
 #define MAX_RFID                          6
 String RFID_LIST[MAX_RFID][2] = {
@@ -76,7 +76,7 @@ String RFID_LIST[MAX_RFID][2] = {
   {"424619615", "0"},
 };
 // GAME STEP 3: ledmatrix
-#define GS3_PASSWORD                      "1234"
+#define GS3_PASSWORD                      "311252"
 // GAME STEP 4: joystick   
 const String GS4_PASSWORD  =              "LLRRUD";
 // GAME STEP 5: encoder
@@ -209,6 +209,10 @@ const double GPS_TARGET_LONGITUDE =         -2.66903;
 #define MICROPHONE_LEVEL                  900
 #define MICROPHONE_MAX_COUNTER            5
 // buzzer
+int melody_intro[] = {  
+  NOTE_E5,8, NOTE_E5,8, REST,8, NOTE_E5,8, REST,8, NOTE_C5,8, NOTE_E5,8, //1
+  NOTE_G5,4, REST,4,
+};
 int melody_0[] = {
   NOTE_E5, 4,  NOTE_B4,8,  NOTE_C5,8,  NOTE_D5,4,  NOTE_C5,8,  NOTE_B4,8,
   NOTE_A4, 4,  NOTE_A4,8,  NOTE_C5,8,  NOTE_E5,4,  NOTE_D5,8,  NOTE_C5,8,
@@ -296,7 +300,7 @@ const String MSG_CLUE_2[MAX_STEPS][MAX_CLUES] = {
   {"Se han encendido unas luces en un orden", "Pulsad las luces en el orden correcto",   "Muy rapido?Grabad la secuencia con movil"},
   {"Hay un mapa que muestra unas X",          "Quiza alguien os tenga que dar un objeto","Usad expresión secreta en coordenada"},
   {"Accede a la web",                         "Resolviste el enigma?",                   "Llamad a Salas paquetes"},
-  {"Usa el joystick",                         "Prueba5 - Pista2",                        "Prueba5 - Pista3"},
+  {"Usa el joystick",                         "Cada direccion tiene un orden",           "Localiza las coordenadas en un mapa"},
   {"Un pulsador genera musica",               "Sabeis el anyo de la cancion?",           "Alguien dijo morse?"},
   {"Moviendo un encoder cambian las letras",  "Los numeros representan un orden",        "Luann tampoco lo supo"},
   {"A accionar switches",                     "Todos deben estar en su posicion",        "Llamad a Eneko paquetes"},
@@ -403,6 +407,7 @@ void setup() {
   pinMode(GPIO_LED_6, OUTPUT);
   pinMode(GPIO_LED_7, OUTPUT);
   pinMode(GPIO_LED_8, OUTPUT);
+  pinMode(GPIO_LED_9, OUTPUT);
   pinMode(GPIO_MOTOR, OUTPUT);
   pinMode(GPIO_LOCKER, OUTPUT);
   digitalWrite(GPIO_LOCKER,LOW);
@@ -461,6 +466,9 @@ void setup() {
   // Setup SPI and rfid
   SPI.begin();
   mfrc522.PCD_Init();
+
+  // intro
+  intro();
 
   // Init lcd
   lcd.begin();                      
@@ -740,6 +748,21 @@ void loop() {
 // ********************************************************************************************* //
 // GENERAL
 // ********************************************************************************************* //
+
+// intro
+void intro()
+{
+  for(int i=0;i<MAX_STEPS;i++){
+    digitalWrite(GPIO_LED_1 + i,HIGH);
+    delay(80);
+  }
+  for(int i=0;i<MAX_STEPS;i++){
+    digitalWrite(GPIO_LED_9 - i,LOW);
+    delay(80);
+  }
+
+  melody.play_melody(melody_intro, sizeof(melody_intro));
+}
 
 // Increment recording time
 void increment_recording_time(int minutes)
