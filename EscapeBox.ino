@@ -87,8 +87,8 @@ const String GS4_PASSWORD  =              "LLRRUD";
 // GAME STEP 6: display
 #define GS7_PASSWORD                      "DIGNIDAD"
 // GAME STEP 7: gps
-const double GPS_TARGET_LATITUDE =          42.841465;    
-const double GPS_TARGET_LONGITUDE =         -2.66903;           
+const double GPS_TARGET_LATITUDE =          42.849565;    
+const double GPS_TARGET_LONGITUDE =         -2.695663;           
    
 
 // ********************************************************************************************* //
@@ -1231,52 +1231,52 @@ void play_leds ()
     long timeout;
     timeout=random(50,800);
     // 1/10
-    digitalWrite(GPIO_LED_R, HIGH);  // 2
-    digitalWrite(GPIO_LED_G, HIGH);  // 3
-    digitalWrite(GPIO_LED_B, HIGH);  // 1
+    digitalWrite(GPIO_LED_G, HIGH);  // 2
+    digitalWrite(GPIO_LED_B, HIGH);  // 3
+    digitalWrite(GPIO_LED_R, HIGH);  // 1
     digitalWrite(GPIO_LED_W, HIGH);  // 5
     delay(timeout);
     // 2/10
     digitalWrite(GPIO_LED_W, LOW);
     delay(timeout);
     // 3/10
-    digitalWrite(GPIO_LED_G, LOW);
-    digitalWrite(GPIO_LED_R, LOW); 
+    digitalWrite(GPIO_LED_B, LOW);
+    digitalWrite(GPIO_LED_G, LOW); 
     digitalWrite(GPIO_LED_W, HIGH);
     delay(timeout);
     // 4/10
-    digitalWrite(GPIO_LED_G, HIGH);
+    digitalWrite(GPIO_LED_B, HIGH);
     digitalWrite(GPIO_LED_W, LOW);
     delay(timeout);
     // 5/10
     digitalWrite(GPIO_LED_W, HIGH);
     delay(timeout);
     // 6/10
-    digitalWrite(GPIO_LED_R, HIGH); 
-    digitalWrite(GPIO_LED_G, LOW);
-    digitalWrite(GPIO_LED_B, LOW); 
+    digitalWrite(GPIO_LED_G, HIGH); 
+    digitalWrite(GPIO_LED_B, LOW);
+    digitalWrite(GPIO_LED_R, LOW); 
     digitalWrite(GPIO_LED_W, LOW);
     delay(timeout);
     // 7/10
     digitalWrite(GPIO_LED_W, HIGH);
-    digitalWrite(GPIO_LED_G, HIGH);
+    digitalWrite(GPIO_LED_B, HIGH);
     delay(timeout);
     // 8/10
-    digitalWrite(GPIO_LED_R, LOW); 
+    digitalWrite(GPIO_LED_G, LOW); 
     digitalWrite(GPIO_LED_W, LOW);
     delay(timeout);
     // 9/10
-    digitalWrite(GPIO_LED_G, HIGH);
+    digitalWrite(GPIO_LED_B, HIGH);
     digitalWrite(GPIO_LED_W, HIGH);
     delay(timeout);
     // 10/10
-    digitalWrite(GPIO_LED_G, LOW);
+    digitalWrite(GPIO_LED_B, LOW);
     digitalWrite(GPIO_LED_W, LOW);
     delay(timeout);
   
-    digitalWrite(GPIO_LED_R, LOW);  
     digitalWrite(GPIO_LED_G, LOW);  
     digitalWrite(GPIO_LED_B, LOW);  
+    digitalWrite(GPIO_LED_R, LOW);  
     digitalWrite(GPIO_LED_W, LOW); 
     flag_playing_leds = false; 
 }
@@ -1514,16 +1514,16 @@ bool check_joystick()
   delay(100);                 //es necesaria una pequeña pausa entre lecturas analógicas
   Yval = analogRead(GPIO_JOY_Y);
   if (Xval>800 and Yval>200 and Yval<800){
-    joy_current_state = 'U';
-  }
-  else if (Xval<200 and Yval>200 and Yval<800){
-    joy_current_state = 'D';
-  }
-  else if (Yval>800 and Xval>200 and Xval<800){
     joy_current_state = 'R';
   }
-  else if (Yval<200 and Xval>200 and Xval<800){
+  else if (Xval<200 and Yval>200 and Yval<800){
     joy_current_state = 'L';
+  }
+  else if (Yval>800 and Xval>200 and Xval<800){
+    joy_current_state = 'D';
+  }
+  else if (Yval<200 and Xval>200 and Xval<800){
+    joy_current_state = 'U';
   }
   else {
     joy_current_state = ' ';
