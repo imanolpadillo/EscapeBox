@@ -40,15 +40,15 @@
 // ********************************************************************************************* //
 // KEYPAD COMMANDS
 #define CMD_RESET_RECORDING_TIME          "A310721"
-#define CMD_GOTO_1                        "A000000"
-#define CMD_GOTO_2                        "A667750"
-#define CMD_GOTO_3                        "A566777"
-#define CMD_GOTO_4                        "A756778"
-#define CMD_GOTO_5                        "A465887"
-#define CMD_GOTO_6                        "A954644"
-#define CMD_GOTO_7                        "A173499"
-#define CMD_GOTO_8                        "A249433"
-#define CMD_GOTO_9                        "A445346"
+#define CMD_GOTO_1                        "A000000"  // Cables de color
+#define CMD_GOTO_2                        "A667750"  // Simon says!
+#define CMD_GOTO_3                        "A566777"  // Mistery card
+#define CMD_GOTO_4                        "A756778"  // Jeroglifico
+#define CMD_GOTO_5                        "A465887"  // Volando voy
+#define CMD_GOTO_6                        "A954644"  // Musica maestro
+#define CMD_GOTO_7                        "A173499"  // Secret word
+#define CMD_GOTO_8                        "A249433"  // Switch me
+#define CMD_GOTO_9                        "A445346"  // Desenlace
 #define CMD_GOTO_END                      "A592288"
 /*#define CMD_GOTO_1                        "A111111"
 #define CMD_GOTO_2                        "A222222"
@@ -78,7 +78,7 @@ String RFID_LIST[MAX_RFID][2] = {
 // GAME STEP 3: ledmatrix
 #define GS3_PASSWORD                      "311252"
 // GAME STEP 4: joystick   
-const String GS4_PASSWORD  =              "LLRRUD";
+const String GS4_PASSWORD  =              "RULURULURULURULDLURDRURDRURULULDLURURULULDLURURDRURURDRDRURULURULURDLDLDRDLDRURURURDRDRDLDLDRDRDRURDRDRDLDRDRDRDRURDRURULULURULURURDRULDLULULULDLDLURULURULURURDRURDRDRURD";
 // GAME STEP 5: encoder
 #define YEAR_0                            1861
 #define YEAR_1                            1963
@@ -87,8 +87,8 @@ const String GS4_PASSWORD  =              "LLRRUD";
 // GAME STEP 6: display
 #define GS7_PASSWORD                      "DIGNIDAD"
 // GAME STEP 7: gps
-const double GPS_TARGET_LATITUDE =          42.849565;    
-const double GPS_TARGET_LONGITUDE =         -2.695663;           
+const double GPS_TARGET_LATITUDE =          42.841465;    
+const double GPS_TARGET_LONGITUDE =         -2.66903;           
    
 
 // ********************************************************************************************* //
@@ -262,7 +262,7 @@ int melody_end[] = {
   
   };
 
-String LMATRIX_TAPE = "www.escapebox.com";
+String LMATRIX_TAPE = "http://elhombredelsaco.synology.me/escapebox_web/dist/";
 // Messages                                1234567890123456789012345678901234567890
 #define MSG_INIT_1                        "   ESCAPE BOX   "
 #define MSG_INIT_2                        "  Mai y Mario   "
@@ -296,7 +296,7 @@ const String MSG_CLUE_1[MAX_STEPS][MAX_CLUES] = {
 };
 const String MSG_CLUE_2[MAX_STEPS][MAX_CLUES] = {
   //1234567890123456789012345678901234567890   1234567890123456789012345678901234567890   1234567890123456789012345678901234567890
-  {"Cada cable tiene un color",               "Accionar los leds con un interruptor",    "Cada coordenada os da un simbolo"},
+  {"Pulsa el boton PUSH",                     "El parpadeo es la clave",                 "Cada coordenada os da un simbolo"},
   {"Se han encendido unas luces en un orden", "Pulsad las luces en el orden correcto",   "Muy rapido?Grabad la secuencia con movil"},
   {"Hay un mapa que muestra unas X",          "Quiza alguien os tenga que dar un objeto","Usad expresión secreta en coordenada"},
   {"Accede a la web",                         "Resolviste el enigma?",                   "Llamad a Salas paquetes"},
@@ -410,7 +410,7 @@ void setup() {
   pinMode(GPIO_LED_9, OUTPUT);
   pinMode(GPIO_MOTOR, OUTPUT);
   pinMode(GPIO_LOCKER, OUTPUT);
-  digitalWrite(GPIO_LOCKER,LOW);
+  digitalWrite(GPIO_LOCKER,HIGH);
   // GAME STEP 0: wires + leds
   pinMode(GPIO_LED_R, OUTPUT);  
   pinMode(GPIO_LED_G, OUTPUT);  
@@ -711,11 +711,11 @@ void loop() {
         EEPROM.read(3)) + " min";
       lcd_print(MSG_GAMESTEP[MAX_STEPS-1][0],MSG_GAMESTEP[MAX_STEPS-1][1],0); 
       digitalWrite(GPIO_MOTOR,HIGH);
-      digitalWrite(GPIO_LOCKER,HIGH);
+      digitalWrite(GPIO_LOCKER,LOW);
       melody.play_melody(melody_end, sizeof(melody_end));
       melody_end_flag = true;
       digitalWrite(GPIO_MOTOR,LOW);
-      digitalWrite(GPIO_LOCKER,LOW);
+      digitalWrite(GPIO_LOCKER,HIGH);
       delay(1000);
       flag_playing_clue = false;
     }
