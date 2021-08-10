@@ -39,16 +39,16 @@
 // PASSWORDS
 // ********************************************************************************************* //
 // KEYPAD COMMANDS
-#define CMD_RESET_RECORDING_TIME          "A310721"
+#define CMD_RESET_RECORDING_TIME          "A270821"
 #define CMD_GOTO_1                        "A000000"  // Cables de color
 #define CMD_GOTO_2                        "A667750"  // Simon says!
 #define CMD_GOTO_3                        "A566777"  // Mistery card
-#define CMD_GOTO_4                        "A756778"  // Jeroglifico
-#define CMD_GOTO_5                        "A465887"  // Volando voy
-#define CMD_GOTO_6                        "A954644"  // Musica maestro
+#define CMD_GOTO_4                        "A756778"  // Web
+#define CMD_GOTO_5                        "A465887"  // Joystick
+#define CMD_GOTO_6                        "A954644"  // Music
 #define CMD_GOTO_7                        "A173499"  // Secret word
 #define CMD_GOTO_8                        "A249433"  // Switch me
-#define CMD_GOTO_9                        "A445346"  // Desenlace
+#define CMD_GOTO_9                        "A445346"  // GPS
 #define CMD_GOTO_END                      "A592288"
 /*#define CMD_GOTO_1                        "A111111"
 #define CMD_GOTO_2                        "A222222"
@@ -78,7 +78,7 @@ String RFID_LIST[MAX_RFID][2] = {
 // GAME STEP 3: ledmatrix
 #define GS3_PASSWORD                      "311252"
 // GAME STEP 4: joystick   
-const String GS4_PASSWORD  =              "RULURULURULURULDLURDRURDRURULULDLURURULULDLURURDRURURDRDRURULURULURDLDLDRDLDRURURURDRDRDLDLDRDRDRURDRDRDLDRDRDRDRURDRURULULURULURURDRULDLULULULDLDLURULURULURURDRURDRDRURD";
+const String GS4_PASSWORD  =              "LLRRUD";
 // GAME STEP 5: encoder
 #define YEAR_0                            1861
 #define YEAR_1                            1963
