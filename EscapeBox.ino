@@ -78,7 +78,7 @@ String RFID_LIST[MAX_RFID][2] = {
 // GAME STEP 3: ledmatrix
 #define GS3_PASSWORD                      "311252"
 // GAME STEP 4: joystick   
-const String GS4_PASSWORD  =              "LLRRUD";
+const String GS4_PASSWORD  =              "RDRDLULDLULDRDLULDLULULULULDLURURDRULDLDLDRDLUL";
 // GAME STEP 5: encoder
 #define YEAR_0                            1861
 #define YEAR_1                            1963
