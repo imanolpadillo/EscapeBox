@@ -295,7 +295,7 @@ const String MSG_CLUE_1[MAX_STEPS][MAX_CLUES] = {
   {"Prueba7 - Pista1", "Prueba7 - Pista2", "Prueba7 - Pista3"},
   {"Prueba8 - Pista1", "Prueba8 - Pista2", "Prueba8 - Pista3"},
   {"Prueba9 - Pista1", "Prueba9 - Pista2", "Prueba9 - Pista3"},
-  {"Prueba10 - Pista1", "Prueba10 - Pista2", "Prueba10 - Pista3"}
+  {"", "", ""}
 };
 const String MSG_CLUE_2[MAX_STEPS][MAX_CLUES] = {
   //1234567890123456789012345678901234567890   1234567890123456789012345678901234567890   1234567890123456789012345678901234567890
@@ -651,6 +651,9 @@ void loop() {
       if (check_date() == true){
          encoder_val=0;
          date1.clearDisplay();
+         date2.clearDisplay();
+         date3.clearDisplay();
+         date4.clearDisplay();
          increment_game_step();
       }
     }
@@ -710,20 +713,18 @@ void loop() {
     if (game_step == MAX_STEPS-1 and melody_end_flag == false)
     {
       // Read eeprom
+      digitalWrite(GPIO_GPS_LED,LOW);
       MSG_GAMESTEP[MAX_STEPS-1][1] = "Tiempo: " + String(EEPROM.read(0)*1000 + EEPROM.read(1)*100 + EEPROM.read(2)*10 + 
         EEPROM.read(3)) + " min";
       lcd_print(MSG_GAMESTEP[MAX_STEPS-1][0],MSG_GAMESTEP[MAX_STEPS-1][1],0); 
-      //digitalWrite(GPIO_MOTOR,HIGH);
-      digitalWrite(GPIO_LOCKER,LOW);
-      matrix.fillScreen(0);
-      matrix.write();
+      //digitalWrite(GPIO_LOCKER,LOW);
+      //delay(1000);
+      //digitalWrite(GPIO_LOCKER,HIGH);      
       melody.play_melody(melody_end, sizeof(melody_end));
-      melody_end_flag = true;
-      //digitalWrite(GPIO_MOTOR,LOW);
-      digitalWrite(GPIO_LOCKER,HIGH);
+      digitalWrite(GPIO_LOCKER,LOW);
       delay(1000);
-      matrix.fillScreen(0);
-      matrix.write();
+      digitalWrite(GPIO_LOCKER,HIGH);
+      melody_end_flag = true;
       flag_playing_clue = false;
     }
 
