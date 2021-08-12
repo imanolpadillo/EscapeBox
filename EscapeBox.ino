@@ -80,7 +80,7 @@ String RFID_LIST[MAX_RFID][2] = {
 // GAME STEP 4: joystick   
 const String GS4_PASSWORD  =              "RDRDLULDLULDRDLULDLULULULULDLURURDRULDLDLDRDLUL";
 // GAME STEP 5: encoder
-#define YEAR_0                            1861
+#define YEAR_0                            1984
 #define YEAR_1                            1963
 #define YEAR_2                            1985
 #define YEAR_3                            2009
@@ -296,11 +296,11 @@ const String MSG_CLUE_1[MAX_STEPS][MAX_CLUES] = {
 };
 const String MSG_CLUE_2[MAX_STEPS][MAX_CLUES] = {
   //1234567890123456789012345678901234567890   1234567890123456789012345678901234567890   1234567890123456789012345678901234567890
-  {"Pulsa el boton PUSH",                     "El parpadeo es la clave",                 "Cada coordenada os da un simbolo"},
+  {"Pulsad el boton PUSH",                    "El parpadeo es la clave",                 "Cada coordenada os da un simbolo"},
   {"Se han encendido unas luces en un orden", "Pulsad las luces en el orden correcto",   "Muy rapido?Grabad la secuencia con movil"},
-  {"Hay un mapa que muestra unas X",          "Quiza alguien os tenga que dar un objeto","Usad expresión secreta en coordenada"},
-  {"Accede a la web",                         "Resolviste el enigma?",                   "Llamad a Salas paquetes"},
-  {"Usa el joystick",                         "Cada direccion tiene un orden",           "Localiza las coordenadas en un mapa"},
+  {"Hay un mapa que muestra unas X",          "Quiza alguien os tenga que dar un objeto","Usad expresion secreta en coordenada"},
+  {"Acceded a la web",                        "Resolvisteis el enigma?",                 "Llamad a Gallego paquetes"},
+  {"Usad el joystick",                        "Si fallais volveis a empezar",            "No existen diagonales"},
   {"Un pulsador genera musica",               "Sabeis el anyo de la cancion?",           "Alguien dijo morse?"},
   {"Moviendo un encoder cambian las letras",  "Los numeros representan un orden",        "Luann tampoco lo supo"},
   {"A accionar switches",                     "Todos deben estar en su posicion",        "Llamad a Eneko paquetes"},
