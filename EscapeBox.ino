@@ -66,7 +66,7 @@
 #define SIMON_SEQUENCE_2                  "BYRYRGGBYR"
 #define SIMON_SEQUENCE_3                  "GBRRYBGYRBBYG"
 // GAME STEP 2: rfid
-#define MAX_RFID                          6
+#define MAX_RFID                          9
 String RFID_LIST[MAX_RFID][2] = {
   {"3221477164", "0"},
   {"21814120015", "0"},
@@ -74,6 +74,9 @@ String RFID_LIST[MAX_RFID][2] = {
   {"2623418915", "0"},
   {"423018815", "0"},
   {"424619615", "0"},
+  {"9019319715", "0"},
+  {"1023719315", "0"},
+  {"2505319315", "0"}
 };
 // GAME STEP 3: ledmatrix
 #define GS3_PASSWORD                      "311252"
@@ -647,6 +650,7 @@ void loop() {
       encoder_min_val = ENCODER_MIN_VAL_GS5;
       if (check_date() == true){
          encoder_val=0;
+         date1.clearDisplay();
          increment_game_step();
       }
     }
