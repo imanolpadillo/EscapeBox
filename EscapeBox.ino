@@ -35,7 +35,7 @@
 #include "LedControl.h"
 #include "TM1637.h"
 
-// ********************************************************************************************* //
+// ********************************************************************************************* // 
 // PASSWORDS
 // ********************************************************************************************* //
 // KEYPAD COMMANDS
@@ -110,8 +110,8 @@ const double GPS_TARGET_LONGITUDE =         -2.66903;
 #define GPIO_LED_7                        67
 #define GPIO_LED_8                        68
 #define GPIO_LED_9                        69
-#define GPIO_MOTOR                        16
-#define GPIO_LOCKER                       43//13
+#define GPIO_MOTOR                        43
+#define GPIO_LOCKER                       16
 // GAME STEP 0: wires + leds
 #define GPIO_PULSE                        3
 #define GPIO_LED_R                        22
@@ -172,7 +172,7 @@ const double GPS_TARGET_LONGITUDE =         -2.66903;
 #define GPIO_MICROPHONE                   A2
 #define GPIO_GPS_TX                       14
 #define GPIO_GPS_RX                       15
-#define GPIO_GPS_LED                      13//43
+#define GPIO_GPS_LED                      13
 
 // ********************************************************************************************* //
 // CONSTANTS
@@ -509,7 +509,6 @@ void setup() {
 // MAIN
 // ********************************************************************************************* //
 void loop() {
-
   // check emergency
   if (digitalRead(GPIO_EMERGENCY)==LOW and flag_emergency==false){  
     // emergency pressed
@@ -710,13 +709,17 @@ void loop() {
       MSG_GAMESTEP[MAX_STEPS-1][1] = "Tiempo: " + String(EEPROM.read(0)*1000 + EEPROM.read(1)*100 + EEPROM.read(2)*10 + 
         EEPROM.read(3)) + " min";
       lcd_print(MSG_GAMESTEP[MAX_STEPS-1][0],MSG_GAMESTEP[MAX_STEPS-1][1],0); 
-      digitalWrite(GPIO_MOTOR,HIGH);
+      //digitalWrite(GPIO_MOTOR,HIGH);
       digitalWrite(GPIO_LOCKER,LOW);
+      matrix.fillScreen(0);
+      matrix.write();
       melody.play_melody(melody_end, sizeof(melody_end));
       melody_end_flag = true;
-      digitalWrite(GPIO_MOTOR,LOW);
+      //digitalWrite(GPIO_MOTOR,LOW);
       digitalWrite(GPIO_LOCKER,HIGH);
       delay(1000);
+      matrix.fillScreen(0);
+      matrix.write();
       flag_playing_clue = false;
     }
 
@@ -1538,12 +1541,12 @@ bool check_joystick()
 
   //Serial.println ("joy_current_state: " + String(joy_current_state) + ", joy_last_state: " + String(joy_last_state) + ", joy_val: " + password_val);
 
-  if (joy_val.length() == GS4_PASSWORD.length()){
-    if (joy_val != GS4_PASSWORD){
-      play_buzzer(BUZZER_ERROR);
-      joy_val = "";
-    }
-    else{
+  if (joy_val != GS4_PASSWORD.substring(0,joy_val.length())){
+    play_buzzer(BUZZER_ERROR);
+    joy_val = "";
+  }
+  else {
+    if (joy_val.length() == GS4_PASSWORD.length()){
       joy_val = "";
       return true;
     }
