@@ -307,7 +307,7 @@ const String MSG_CLUE_2[MAX_STEPS][MAX_CLUES] = {
   {"Un pulsador genera musica",               "Sabeis el anyo de la cancion?",           "Alguien dijo morse?"},
   {"Moviendo un encoder cambian las letras",  "Los numeros representan un orden",        "Luann tampoco lo supo"},
   {"A accionar switches",                     "Todos deben estar en su posicion",        "Llamad a Eneko paquetes"},
-  {"Id a la coordenada",                      "Gritad la contrasenya",                   "Acercaos al microfono"},
+  {"Id a la coordenada con el maletin",       "Gritad la contrasenya",                   "Acercaos al microfono"},
   {"No ha sido tan dificil, no?",             "Habeis sido un poco paquetes",            "Os queremos"}
 };
 // ********************************************************************************************* //
@@ -1587,6 +1587,7 @@ bool check_date()
       }
       else{
         play_buzzer(BUZZER_ERROR);
+        increment_recording_time(1);
       }
     }
     else if (song_index == 1){
@@ -1596,6 +1597,7 @@ bool check_date()
       }
       else{
         play_buzzer(BUZZER_ERROR);
+        increment_recording_time(1);
       }
     }
     else if (song_index == 2){
@@ -1605,6 +1607,7 @@ bool check_date()
       }
       else{
         play_buzzer(BUZZER_ERROR);
+        increment_recording_time(1);
       }
     }
     else if (song_index == 3){
@@ -1615,6 +1618,7 @@ bool check_date()
       }
       else{
         play_buzzer(BUZZER_ERROR);
+        increment_recording_time(1);
       }
     }
   }
