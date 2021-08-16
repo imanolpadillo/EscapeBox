@@ -3,6 +3,8 @@
 * Copyright 2013-2021 Start Bootstrap
 * Licensed under MIT (https://github.com/StartBootstrap/startbootstrap-stylish-portfolio/blob/master/LICENSE)
 */
+var sol1 = "NTAsMDA=";
+var sol2 = "NTAuMDA=";
 (function ($) {
     "use strict"; // Start of use strict
 
@@ -86,7 +88,7 @@ $('.map').on('click', onMapClickHandler);
 
 $('#solutionButton').on('click', function(event) {
     event.preventDefault(); // To prevent following the link (optional)
-    if (document.getElementById("solution").value == 1234){
+    if (document.getElementById("solution").value == atob(sol1) || document.getElementById("solution").value == atob(sol2)){
         document.getElementById("map").classList.remove('d-none');
         document.getElementById("error").classList.add('d-none');
         window.location.hash = "finish";
