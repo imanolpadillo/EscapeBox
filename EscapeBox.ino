@@ -90,8 +90,8 @@ const String GS4_PASSWORD  =              "RDRDLULDLULDRDLULDLULULULULDLURURDRUL
 // GAME STEP 6: display
 #define GS7_PASSWORD                      "DIGNIDAD"
 // GAME STEP 7: gps
-const double GPS_TARGET_LATITUDE =          42.841465;    
-const double GPS_TARGET_LONGITUDE =         -2.66903;           
+const double GPS_TARGET_LATITUDE =          42.8466;    
+const double GPS_TARGET_LONGITUDE =         -2.67332;           
    
 
 // ********************************************************************************************* //
@@ -273,11 +273,11 @@ String LMATRIX_TAPE = "http://elhombredelsaco.synology.me/escapebox_web/dist/";
 #define MSG_EMER_2                        "Juego Reseteado "
 
 const String MSG_GAMESTEP[MAX_STEPS][LCD_ROWS] = {
-  {"Prueba 1        ", "Cables de color "},
+  {"Prueba 1        ", "Bombas y montes "},
   {"Prueba 2        ", "Simon says!     "},
   {"Prueba 3        ", "Mistery card    "},
-  {"Prueba 4        ", "Jeroglifico     "},
-  {"Prueba 5        ", "Volando voy     "},
+  {"Prueba 4        ", "Web             "},
+  {"Prueba 5        ", "Laberinto       "},
   {"Prueba 6        ", "Musica maestro  "},
   {"Prueba 7        ", "Secret word     "},
   {"Prueba 8        ", "Switch me       "},
